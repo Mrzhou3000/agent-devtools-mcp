@@ -1,0 +1,49 @@
+[project]
+name = "agent-devtools-mcp"
+version = "0.1.0"
+description = "生产级 MCP 工具网关套件 —— 为 AI Agent 提供开发工具/数据库/知识库三大领域的安全可控调用能力"
+requires-python = ">=3.12"
+
+# ============================
+# 📦 uv 工作空间配置
+# 告诉 uv：packages/ 目录下有 4 个小项目
+# ============================
+[tool.uv.workspace]
+members = [
+    "packages/mcp-common",
+    "packages/mcp-devtools",
+    "packages/mcp-dbtools",
+    "packages/mcp-kbtools",
+]
+
+# 工作空间内部依赖解析
+# 告诉 uv：mcp-devtools/mcp-dbtools/mcp-kbtools 引用的 "mcp-common"
+# 就是本工作空间里的 packages/mcp-common，而不是去 PyPI 下载
+[tool.uv.sources]
+mcp-common = { workspace = true }
+
+# ============================
+# 🔧 工具配置
+# ============================
+
+# Ruff 代码格式化配置
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.format]
+quote-style = "double"
+
+# mypy 类型检查配置
+[tool.mypy]
+strict = true
+python_version = "3.12"
+
+# pytest 配置
+[tool.pytest.ini_options]
+testpaths = ["packages", "integration_tests"]
+addopts = "-v --cov=packages/ --cov-report=term"
+asyncio_mode = "auto"
+markers = [
+    "security: 安全测试 —— 验证安全防护机制是否正常工作",
+]

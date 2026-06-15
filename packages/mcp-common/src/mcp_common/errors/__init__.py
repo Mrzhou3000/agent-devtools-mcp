@@ -1,0 +1,44 @@
+"""错误码模块 —— 统一错误处理"""
+
+from .codes import (
+    ALL_ERROR_CODES,
+    COM_CFG_001,
+    COM_CFG_002,
+    COM_EXE_001,
+    COM_EXE_002,
+    COM_EXE_003,
+    COM_EXE_004,
+    COM_EXE_005,
+    COM_NFO_001,
+    COM_NFO_002,
+    COM_NFO_003,
+    COM_NFO_004,
+    COM_SEC_001,
+    COM_SEC_002,
+    COM_SEC_003,
+    COM_SEC_004,
+    COM_SEC_005,
+    COM_SEC_006,
+    COM_VAL_001,
+    COM_VAL_002,
+    COM_VAL_003,
+    ErrorCategory,
+    ErrorCode,
+    get_error_code,
+)
+from .handler import ToolError, format_error, is_security_error
+
+__all__ = [
+    "ErrorCode",
+    "ErrorCategory",
+    "ToolError",
+    "format_error",
+    "is_security_error",
+    "get_error_code",
+    "COM_SEC_001", "COM_SEC_002", "COM_SEC_003", "COM_SEC_004", "COM_SEC_005", "COM_SEC_006",
+    "COM_VAL_001", "COM_VAL_002", "COM_VAL_003",
+    "COM_EXE_001", "COM_EXE_002", "COM_EXE_003", "COM_EXE_004", "COM_EXE_005",
+    "COM_NFO_001", "COM_NFO_002", "COM_NFO_003", "COM_NFO_004",
+    "COM_CFG_001", "COM_CFG_002",
+    "ALL_ERROR_CODES",
+]

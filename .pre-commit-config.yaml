@@ -1,0 +1,71 @@
+# ═══════════════════════════════════════════════════════════════
+# Pre-commit 配置
+# 每次 git commit 前自动运行：
+#   1. Ruff: 代码检查 + 自动修复
+#   2. Ruff: 代码格式化
+#   3. mypy: 静态类型检查
+#   4. pytest: 运行测试
+#
+# 安装:
+#   pip install pre-commit          # 首次安装 pre-commit
+#   pre-commit install              # 安装 git hooks（一次性）
+#   pre-commit install -t pre-push  # （可选）推前也检查
+#
+# 跳过测试（快速提交）:
+#   SKIP=pytest git commit -m "..."
+# ═══════════════════════════════════════════════════════════════
+repos:
+  # ── Ruff: 代码检查 ────────────────────────────────────────
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.6.0
+    hooks:
+      - id: ruff
+        name: ruff check
+        description: "Lint Python 代码，自动修复可修复的问题"
+        args:
+          - --fix
+          - --exit-non-zero-on-fix
+        stages: [pre-commit]
+
+      - id: ruff-format
+        name: ruff format
+        description: "自动格式化 Python 代码"
+        stages: [pre-commit]
+
+  # ── mypy: 类型检查 ────────────────────────────────────────
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.11.0
+    hooks:
+      - id: mypy
+        name: mypy
+        description: "Python 静态类型检查（严格模式）"
+        args:
+          - packages/
+          - --config-file=pyproject.toml
+        # mypy 需要所有依赖可用，用 uv 的虚拟环境
+        additional_dependencies:
+          - "pydantic>=2.0.0"
+          - "mcp>=1.0.0"
+          - "aiosqlite>=0.20.0"
+          - "typer>=0.12.0"
+          - "whoosh>=0.7.0"
+          - "asyncpg>=0.31.0"
+          - "sqlglot>=25.0.0"
+        stages: [pre-commit]
+        # 允许失败但输出警告（类型检查较严格，偶尔有误报）
+        # 设为 false 则必须通过才能提交
+        verbose: true
+
+  # ── pytest: 运行测试 ──────────────────────────────────────
+  - repo: local
+    hooks:
+      - id: pytest
+        name: pytest
+        description: "运行项目测试 —— 确保代码变更不破坏现有功能"
+        entry: uv run pytest -v --timeout=60
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-commit]
+        # ⚠ 如果测试较慢，可以用 SKIP=pytest git commit 跳过
+        # 或者在 pre-push 阶段运行更合适

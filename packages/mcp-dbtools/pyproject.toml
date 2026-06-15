@@ -1,0 +1,26 @@
+[project]
+name = "mcp-dbtools"
+version = "0.1.0"
+description = "数据库访问 MCP Server —— 表结构查询、只读 SQL 查询"
+requires-python = ">=3.12"
+dependencies = [
+    "mcp-common",
+    "aiosqlite>=0.20.0",
+    "typer>=0.12.0",
+    "asyncpg>=0.31.0",
+]
+
+[project.scripts]
+mcp-dbtools = "mcp_dbtools.server:main"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-cov>=5.0.0",
+    "ruff>=0.5.0",
+    "mypy>=1.10.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

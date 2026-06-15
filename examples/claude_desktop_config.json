@@ -1,0 +1,55 @@
+{
+  "mcpServers": {
+    "devtools": {
+      "description": "开发工具 —— 文件读写、命令执行、Git 查询",
+      "command": "uv",
+      "args": [
+        "run",
+        "--directory",
+        "D:/projects/agent-devtools-mcp",
+        "--package",
+        "mcp-devtools",
+        "python",
+        "-m",
+        "mcp_devtools",
+        "run",
+        "--workspace",
+        "D:/projects/my-project"
+      ]
+    },
+    "dbtools": {
+      "description": "数据库查询 —— 只读 SQL、表结构浏览",
+      "command": "uv",
+      "args": [
+        "run",
+        "--directory",
+        "D:/projects/agent-devtools-mcp",
+        "--package",
+        "mcp-dbtools",
+        "python",
+        "-m",
+        "mcp_dbtools",
+        "run",
+        "--database",
+        "D:/projects/my-project/local.db"
+      ]
+    },
+    "kbtools": {
+      "description": "知识库搜索 —— BM25 关键词检索、文档管理",
+      "command": "uv",
+      "args": [
+        "run",
+        "--directory",
+        "D:/projects/agent-devtools-mcp",
+        "--package",
+        "mcp-kbtools",
+        "python",
+        "-m",
+        "mcp_kbtools",
+        "run",
+        "--data-dir",
+        "D:/projects/my-project/kb_data"
+      ]
+    }
+  }
+}

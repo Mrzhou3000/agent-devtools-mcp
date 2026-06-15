@@ -1,0 +1,10 @@
+# 统一行尾（Windows/macOS/Linux）
+* text=auto
+
+# 特定文件类型
+*.py text diff=python
+*.md text
+*.toml text
+*.yaml text
+*.yml text
+*.lock -diff  # uv.lock 等锁文件不参与 diff
