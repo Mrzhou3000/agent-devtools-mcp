@@ -15,11 +15,12 @@
         tables = await adapter.list_tables()
         result = await adapter.execute_query("SELECT * FROM users")
 """
+
 from __future__ import annotations
 
 from typing import Any
 
-from mcp_common.security.sql_validator import validate_table_name  # type: ignore[import-not-found]
+from mcp_common.security.sql_validator import validate_table_name
 
 from .base import BaseAdapter, ColumnInfo, TableInfo
 
@@ -142,9 +143,7 @@ class PostgreSQLAdapter(BaseAdapter):
         ]
 
         # 获取行数
-        count_result = await self._connection.fetchrow(
-            f"SELECT COUNT(*) AS cnt FROM {table_name}"
-        )
+        count_result = await self._connection.fetchrow(f"SELECT COUNT(*) AS cnt FROM {table_name}")
         row_count = count_result["cnt"] if count_result else 0
 
         return TableInfo(

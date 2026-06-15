@@ -7,4 +7,4 @@
 *.toml text
 *.yaml text
 *.yml text
-*.lock -diff  # uv.lock 等锁文件不参与 diff
+*.lock -diff
