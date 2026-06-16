@@ -77,8 +77,8 @@ _SUGGESTIONS: dict[str, str] = {
     "COM_NFO_002": "请先调用 list_tables 查看所有可用表",
     "COM_NFO_003": "请先调用 create_kb 创建知识库",
     "COM_NFO_004": "请检查命令是否已安装",
-    "COM_CFG_001": '请在配置中设置 allow_write=true（默认禁用，安全考虑）',
-    "COM_CFG_002": '请在配置中设置 allow_command=true（默认禁用，安全考虑）',
+    "COM_CFG_001": "请在配置中设置 allow_write=true（默认禁用，安全考虑）",
+    "COM_CFG_002": "请在配置中设置 allow_command=true（默认禁用，安全考虑）",
 }
 
 
@@ -107,22 +107,13 @@ def format_error(error: Exception, context: dict[str, Any] | None = None) -> str
 
     if isinstance(error, PermissionError):
         msg = str(error)
-        return (
-            f"❌ 权限错误: {msg}\n"
-            f"💡 请检查操作权限或配置文件中的开关设置"
-        )
+        return f"❌ 权限错误: {msg}\n💡 请检查操作权限或配置文件中的开关设置"
 
     if isinstance(error, FileNotFoundError):
-        return (
-            f"❌ 文件不存在: {error}\n"
-            f"💡 请检查文件路径是否正确"
-        )
+        return f"❌ 文件不存在: {error}\n💡 请检查文件路径是否正确"
 
     if isinstance(error, TimeoutError):
-        return (
-            f"❌ 操作超时: {error}\n"
-            f"💡 建议简化操作或增加超时时间"
-        )
+        return f"❌ 操作超时: {error}\n💡 建议简化操作或增加超时时间"
 
     # 通用错误
     context_str = ""
@@ -130,10 +121,7 @@ def format_error(error: Exception, context: dict[str, Any] | None = None) -> str
         ctx_parts = [f"{k}={v}" for k, v in context.items()]
         context_str = f" ({', '.join(ctx_parts)})"
 
-    return (
-        f"❌ 操作失败{context_str}: {error}\n"
-        f"💡 请检查输入参数后重试"
-    )
+    return f"❌ 操作失败{context_str}: {error}\n💡 请检查输入参数后重试"
 
 
 def is_security_error(error: Exception) -> bool:

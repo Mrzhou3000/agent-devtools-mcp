@@ -2,6 +2,7 @@
 
 通过 FastMCP 实例注册工具，提取后直接调用。
 """
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -43,7 +44,9 @@ def mcp_and_manager(manager: KBManager) -> tuple[FastMCP, KBManager]:
 class TestAddDocument:
     """add_document 工具测试"""
 
-    async def test_add_success(self, mcp_and_manager: tuple[FastMCP, KBManager], tmp_path: Path) -> None:
+    async def test_add_success(
+        self, mcp_and_manager: tuple[FastMCP, KBManager], tmp_path: Path
+    ) -> None:
         """添加文档成功"""
         mcp, _ = mcp_and_manager
         doc = tmp_path / "test.md"
@@ -61,7 +64,9 @@ class TestAddDocument:
         result = await tool("default", "/nonexistent/path.txt")
         assert "❌" in result
 
-    async def test_add_unsupported_type(self, mcp_and_manager: tuple[FastMCP, KBManager], tmp_path: Path) -> None:
+    async def test_add_unsupported_type(
+        self, mcp_and_manager: tuple[FastMCP, KBManager], tmp_path: Path
+    ) -> None:
         """不支持的文件类型"""
         mcp, _ = mcp_and_manager
         doc = tmp_path / "test.exe"
@@ -71,7 +76,9 @@ class TestAddDocument:
         result = await tool("default", str(doc))
         assert "❌" in result
 
-    async def test_add_kb_not_found(self, mcp_and_manager: tuple[FastMCP, KBManager], tmp_path: Path) -> None:
+    async def test_add_kb_not_found(
+        self, mcp_and_manager: tuple[FastMCP, KBManager], tmp_path: Path
+    ) -> None:
         """知识库不存在"""
         mcp, _ = mcp_and_manager
         doc = tmp_path / "test.md"
@@ -81,7 +88,9 @@ class TestAddDocument:
         result = await tool("nonexistent_kb", str(doc))
         assert "❌" in result
 
-    async def test_add_chunk_size_zero(self, mcp_and_manager: tuple[FastMCP, KBManager], tmp_path: Path) -> None:
+    async def test_add_chunk_size_zero(
+        self, mcp_and_manager: tuple[FastMCP, KBManager], tmp_path: Path
+    ) -> None:
         """分块大小为 0 也能处理"""
         mcp, _ = mcp_and_manager
         doc = tmp_path / "zero.md"
@@ -95,7 +104,9 @@ class TestAddDocument:
 class TestDeleteDocument:
     """delete_document 工具测试"""
 
-    async def test_delete_success(self, mcp_and_manager: tuple[FastMCP, KBManager], tmp_path: Path) -> None:
+    async def test_delete_success(
+        self, mcp_and_manager: tuple[FastMCP, KBManager], tmp_path: Path
+    ) -> None:
         """删除成功"""
         mcp, manager = mcp_and_manager
         doc = tmp_path / "del_test.md"
@@ -124,7 +135,9 @@ class TestListKBDocs:
         result = await tool("default")
         assert "为空" in result
 
-    async def test_list_with_docs(self, mcp_and_manager: tuple[FastMCP, KBManager], tmp_path: Path) -> None:
+    async def test_list_with_docs(
+        self, mcp_and_manager: tuple[FastMCP, KBManager], tmp_path: Path
+    ) -> None:
         """有文档时列出"""
         mcp, manager = mcp_and_manager
         doc = tmp_path / "list_test.md"

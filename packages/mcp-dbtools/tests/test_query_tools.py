@@ -166,10 +166,7 @@ class TestQuery:
         register_query_tools(mcp, adapter)
         fn = _find_tool(mcp, "query")
 
-        result = await fn(
-            "SELECT u.name, p.title FROM users u "
-            "JOIN posts p ON u.id = p.user_id"
-        )
+        result = await fn("SELECT u.name, p.title FROM users u JOIN posts p ON u.id = p.user_id")
         assert "Alice" in result
         assert "Hello World" in result
 

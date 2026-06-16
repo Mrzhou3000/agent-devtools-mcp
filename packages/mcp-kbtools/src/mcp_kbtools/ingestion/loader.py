@@ -26,30 +26,103 @@ from typing import Any
 # 支持的文本文件扩展名
 TEXT_EXTENSIONS: set[str] = {
     # 文档
-    ".md", ".markdown", ".rst", ".txt",
+    ".md",
+    ".markdown",
+    ".rst",
+    ".txt",
     # 代码
-    ".py", ".js", ".ts", ".jsx", ".tsx", ".java", ".rs", ".go",
-    ".c", ".h", ".cpp", ".hpp", ".rb", ".php", ".swift", ".kt",
-    ".scala", ".lua", ".sh", ".bash", ".zsh", ".ps1",
+    ".py",
+    ".js",
+    ".ts",
+    ".jsx",
+    ".tsx",
+    ".java",
+    ".rs",
+    ".go",
+    ".c",
+    ".h",
+    ".cpp",
+    ".hpp",
+    ".rb",
+    ".php",
+    ".swift",
+    ".kt",
+    ".scala",
+    ".lua",
+    ".sh",
+    ".bash",
+    ".zsh",
+    ".ps1",
     # Web
-    ".html", ".htm", ".css", ".scss", ".less", ".vue", ".svelte",
+    ".html",
+    ".htm",
+    ".css",
+    ".scss",
+    ".less",
+    ".vue",
+    ".svelte",
     # 配置
-    ".json", ".yaml", ".yml", ".toml", ".ini", ".cfg", ".conf",
-    ".xml", ".svg",
+    ".json",
+    ".yaml",
+    ".yml",
+    ".toml",
+    ".ini",
+    ".cfg",
+    ".conf",
+    ".xml",
+    ".svg",
     # 其他
-    ".sql", ".graphql", ".proto", ".dockerfile",
+    ".sql",
+    ".graphql",
+    ".proto",
+    ".dockerfile",
 }
 
 # 二进制文件扩展名（明确拒绝）
 BINARY_EXTENSIONS: set[str] = {
-    ".exe", ".dll", ".so", ".dylib", ".bin", ".dat",
-    ".png", ".jpg", ".jpeg", ".gif", ".bmp", ".ico", ".webp",
-    ".mp3", ".mp4", ".avi", ".mov", ".wav", ".flac",
-    ".zip", ".tar", ".gz", ".bz2", ".7z", ".rar",
-    ".pdf", ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx",
-    ".pyc", ".pyo", ".pyd",
-    ".ttf", ".otf", ".woff", ".woff2",
-    ".o", ".a", ".lib", ".obj",
+    ".exe",
+    ".dll",
+    ".so",
+    ".dylib",
+    ".bin",
+    ".dat",
+    ".png",
+    ".jpg",
+    ".jpeg",
+    ".gif",
+    ".bmp",
+    ".ico",
+    ".webp",
+    ".mp3",
+    ".mp4",
+    ".avi",
+    ".mov",
+    ".wav",
+    ".flac",
+    ".zip",
+    ".tar",
+    ".gz",
+    ".bz2",
+    ".7z",
+    ".rar",
+    ".pdf",
+    ".doc",
+    ".docx",
+    ".xls",
+    ".xlsx",
+    ".ppt",
+    ".pptx",
+    ".pyc",
+    ".pyo",
+    ".pyd",
+    ".ttf",
+    ".otf",
+    ".woff",
+    ".woff2",
+    ".o",
+    ".a",
+    ".lib",
+    ".obj",
 }
 
 
@@ -63,6 +136,7 @@ class LoadedDocument:
         content: 文档内容
         meta: 元数据（大小、行数、扩展名等）
     """
+
     path: str
     title: str
     content: str
@@ -76,10 +150,7 @@ class UnsupportedFileTypeError(ValueError):
         self.extension = extension
         self.path = path
         ext_list = ", ".join(sorted(TEXT_EXTENSIONS))
-        super().__init__(
-            f"不支持的文件类型 '{extension}'。"
-            f" 支持的格式: {ext_list}"
-        )
+        super().__init__(f"不支持的文件类型 '{extension}'。 支持的格式: {ext_list}")
 
 
 def load_document(file_path: str | Path) -> LoadedDocument:

@@ -2,6 +2,7 @@
 
 通过 FastMCP 实例注册工具，提取后直接调用。
 """
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -77,7 +78,9 @@ class TestSemanticSearch:
         result = await tool("default", "")
         assert "不能为空" in result
 
-    async def test_search_whitespace_query(self, mcp_and_manager: tuple[FastMCP, KBManager]) -> None:
+    async def test_search_whitespace_query(
+        self, mcp_and_manager: tuple[FastMCP, KBManager]
+    ) -> None:
         """纯空格"""
         mcp, _ = mcp_and_manager
         tool = _find_tool(mcp, "semantic_search")

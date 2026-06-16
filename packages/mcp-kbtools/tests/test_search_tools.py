@@ -288,11 +288,7 @@ class TestSearchTools:
         mgr = KBManager(data_dir=str(tmp_path / "search_test"))
         mgr.create_kb("docs", "")
         test_doc = tmp_path / "search_doc.md"
-        test_doc.write_text(
-            "# 项目文档\n\n"
-            "Python 是一种编程语言。\n"
-            "KBManager 管理知识库。\n"
-        )
+        test_doc.write_text("# 项目文档\n\nPython 是一种编程语言。\nKBManager 管理知识库。\n")
         mgr.add_document("docs", str(test_doc), chunk_size=2000)
 
         from mcp_kbtools.tools.kb_search import register_kb_search_tools

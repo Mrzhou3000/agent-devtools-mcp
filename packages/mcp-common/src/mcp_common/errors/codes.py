@@ -24,12 +24,12 @@ from typing import Final
 class ErrorCategory(Enum):
     """错误分类"""
 
-    SECURITY = "security"       # 安全相关（路径穿越、命令注入、SQL 注入）
-    VALIDATION = "validation"   # 校验相关（参数校验、类型校验）
-    EXECUTION = "execution"     # 执行相关（超时、IO 错误、进程崩溃）
-    CONFIG = "configuration"    # 配置相关（缺少配置、配置错误）
-    NOT_FOUND = "not_found"     # 未找到（文件不存在、表不存在）
-    UNKNOWN = "unknown"         # 未知错误
+    SECURITY = "security"  # 安全相关（路径穿越、命令注入、SQL 注入）
+    VALIDATION = "validation"  # 校验相关（参数校验、类型校验）
+    EXECUTION = "execution"  # 执行相关（超时、IO 错误、进程崩溃）
+    CONFIG = "configuration"  # 配置相关（缺少配置、配置错误）
+    NOT_FOUND = "not_found"  # 未找到（文件不存在、表不存在）
+    UNKNOWN = "unknown"  # 未知错误
 
 
 class ErrorCode:
@@ -215,14 +215,14 @@ COM_CFG_001: Final[ErrorCode] = ErrorCode(
     "COM_CFG_001",
     ErrorCategory.CONFIG,
     "写入操作未启用",
-    '请在配置中设置 allow_write=true（默认禁用，安全考虑）',
+    "请在配置中设置 allow_write=true（默认禁用，安全考虑）",
 )
 
 COM_CFG_002: Final[ErrorCode] = ErrorCode(
     "COM_CFG_002",
     ErrorCategory.CONFIG,
     "命令执行未启用",
-    '请在配置中设置 allow_command=true（默认禁用，安全考虑）',
+    "请在配置中设置 allow_command=true（默认禁用，安全考虑）",
 )
 
 
@@ -232,11 +232,26 @@ COM_CFG_002: Final[ErrorCode] = ErrorCode(
 
 # 所有错误码的列表
 ALL_ERROR_CODES: list[ErrorCode] = [
-    COM_SEC_001, COM_SEC_002, COM_SEC_003, COM_SEC_004, COM_SEC_005, COM_SEC_006,
-    COM_VAL_001, COM_VAL_002, COM_VAL_003,
-    COM_EXE_001, COM_EXE_002, COM_EXE_003, COM_EXE_004, COM_EXE_005,
-    COM_NFO_001, COM_NFO_002, COM_NFO_003, COM_NFO_004,
-    COM_CFG_001, COM_CFG_002,
+    COM_SEC_001,
+    COM_SEC_002,
+    COM_SEC_003,
+    COM_SEC_004,
+    COM_SEC_005,
+    COM_SEC_006,
+    COM_VAL_001,
+    COM_VAL_002,
+    COM_VAL_003,
+    COM_EXE_001,
+    COM_EXE_002,
+    COM_EXE_003,
+    COM_EXE_004,
+    COM_EXE_005,
+    COM_NFO_001,
+    COM_NFO_002,
+    COM_NFO_003,
+    COM_NFO_004,
+    COM_CFG_001,
+    COM_CFG_002,
 ]
 
 ERROR_CODE_MAP: dict[str, ErrorCode] = {ec.code: ec for ec in ALL_ERROR_CODES}

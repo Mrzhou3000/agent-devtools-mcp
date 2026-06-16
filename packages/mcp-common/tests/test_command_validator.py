@@ -57,32 +57,38 @@ class TestCommandValidator:
     # ── 参数注入攻击拦截 ──────────────────────────────
 
     @pytest.mark.security
-    @pytest.mark.parametrize("dangerous_char", [
-        ";",     # 命令分隔符
-        "`",     # 命令替换
-        "$",     # 变量引用
-        "|",     # 管道
-        "&&",    # 与运算
-        "||",    # 或运算
-        ">",     # 重定向
-        "<",     # 重定向
-        "&",     # 后台运行
-        "\n",    # 换行注入
-    ])
+    @pytest.mark.parametrize(
+        "dangerous_char",
+        [
+            ";",  # 命令分隔符
+            "`",  # 命令替换
+            "$",  # 变量引用
+            "|",  # 管道
+            "&&",  # 与运算
+            "||",  # 或运算
+            ">",  # 重定向
+            "<",  # 重定向
+            "&",  # 后台运行
+            "\n",  # 换行注入
+        ],
+    )
     def test_dangerous_chars_in_args(self, dangerous_char: str) -> None:
         """参数中的危险字符应该被拦截"""
         with pytest.raises(CommandValidationError, match="危险字符"):
             self.validator.validate("git", [f"status{dangerous_char}rm -rf /"])
 
     @pytest.mark.security
-    @pytest.mark.parametrize("attack_input", [
-        "`cat /etc/passwd`",
-        "$(cat /etc/passwd)",
-        "1; SELECT * FROM admins",
-        "& ping 8.8.8.8 &",
-        "|| whoami",
-        "&& echo hacked",
-    ])
+    @pytest.mark.parametrize(
+        "attack_input",
+        [
+            "`cat /etc/passwd`",
+            "$(cat /etc/passwd)",
+            "1; SELECT * FROM admins",
+            "& ping 8.8.8.8 &",
+            "|| whoami",
+            "&& echo hacked",
+        ],
+    )
     def test_common_injection_patterns(self, attack_input: str) -> None:
         """常见命令注入模式应该被拦截"""
         with pytest.raises(CommandValidationError):

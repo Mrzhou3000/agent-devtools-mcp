@@ -263,7 +263,7 @@ def register_command_tools(
             return "\n".join(result_parts) if result_parts else "(无输出)"
 
         except asyncio.TimeoutError:
-            return f"❌ 命令执行超时（{timeout}秒）\n" f"💡 可通过 timeout 参数调整超时时间"
+            return f"❌ 命令执行超时（{timeout}秒）\n💡 可通过 timeout 参数调整超时时间"
         except FileNotFoundError:
             return (
                 f"❌ 命令未找到: '{command}'\n"
@@ -292,7 +292,7 @@ def register_command_tools(
         # 检查是否是 Git 仓库
         git_dir = safe_path / ".git"
         if not git_dir.exists():
-            return f"❌ 不是 Git 仓库: '{work_dir}'\n" f"💡 当前目录没有 .git 目录"
+            return f"❌ 不是 Git 仓库: '{work_dir}'\n💡 当前目录没有 .git 目录"
 
         git_path = _find_git()
         if git_path is None:
@@ -331,7 +331,7 @@ def register_command_tools(
         if untracked:
             summary_parts.append(f"  未跟踪: {untracked}")
 
-        return f"{' | '.join(summary_parts)}\n" f"───\n" f"{output}"
+        return f"{' | '.join(summary_parts)}\n───\n{output}"
 
     @mcp.tool(description="查看 Git 差异（git diff），显示工作区和暂存区的变更内容")
     async def git_diff(

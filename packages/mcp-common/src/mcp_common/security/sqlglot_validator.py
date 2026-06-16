@@ -153,7 +153,7 @@ def validate_readonly_query_ast(sql: str) -> None:
         parsed = sqlglot.parse_one(stripped, read="sqlite")
     except (sqlglot.errors.ParseError, sqlglot.errors.TokenError) as e:
         raise SQLValidationError(
-            f"SQL 语法解析失败，无法验证安全性\n" f"  {e}\n" f"💡 请检查 SQL 语法是否正确"
+            f"SQL 语法解析失败，无法验证安全性\n  {e}\n💡 请检查 SQL 语法是否正确"
         )
     except Exception as e:
         raise SQLValidationError(f"SQL 解析异常: {e}")
@@ -172,7 +172,7 @@ def validate_readonly_query_ast(sql: str) -> None:
     if writes:
         ops = ", ".join(writes)
         raise SQLValidationError(
-            f"查询中包含被禁止的写入操作: {ops}\n" f"💡 本服务仅支持只读查询，如需写入请联系管理员"
+            f"查询中包含被禁止的写入操作: {ops}\n💡 本服务仅支持只读查询，如需写入请联系管理员"
         )
 
     # 3️⃣ 多语句检查

@@ -24,11 +24,7 @@ class TestConfigLoader:
     def test_load_yaml_file(self, tmp_path: Path) -> None:
         """加载 YAML 配置文件"""
         yaml_file = tmp_path / "config.yaml"
-        yaml_file.write_text(
-            "devtools:\n"
-            "  allow_write: true\n"
-            "  command_timeout: 60\n"
-        )
+        yaml_file.write_text("devtools:\n  allow_write: true\n  command_timeout: 60\n")
         loader = ConfigLoader()
         config = loader.load([str(yaml_file)])
         assert config["devtools"]["allow_write"] is True
@@ -44,11 +40,7 @@ class TestConfigLoader:
     def test_simple_yaml_parser(self, tmp_path: Path) -> None:
         """简易 YAML 解析"""
         yaml_file = tmp_path / "simple.yaml"
-        yaml_file.write_text(
-            "devtools:\n"
-            "  allow_write: true\n"
-            "  allow_command: false\n"
-        )
+        yaml_file.write_text("devtools:\n  allow_write: true\n  allow_command: false\n")
         loader = ConfigLoader()
         # 临时模拟没有 pyyaml
         original = loader._load_yaml_file
@@ -96,11 +88,13 @@ class TestAppConfig:
 
     def test_from_dict_full(self) -> None:
         """完整配置"""
-        config = AppConfig.from_dict({
-            "devtools": {"allow_write": True, "command_timeout": 60},
-            "database": {"max_rows": 500},
-            "knowledge_base": {"default_top_k": 10},
-        })
+        config = AppConfig.from_dict(
+            {
+                "devtools": {"allow_write": True, "command_timeout": 60},
+                "database": {"max_rows": 500},
+                "knowledge_base": {"default_top_k": 10},
+            }
+        )
         assert config.devtools.allow_write is True
         assert config.devtools.command_timeout == 60
         assert config.database.max_rows == 500

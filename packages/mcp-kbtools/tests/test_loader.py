@@ -36,7 +36,9 @@ class TestLoadDocument:
     def test_load_python(self, tmp_path: Path) -> None:
         """加载 Python 文件"""
         py_file = tmp_path / "hello.py"
-        py_file.write_text('''"""Greeting module"""\n\ndef greet(name: str) -> str:\n    return f"Hello {name}"\n''')
+        py_file.write_text(
+            '''"""Greeting module"""\n\ndef greet(name: str) -> str:\n    return f"Hello {name}"\n'''
+        )
         doc = load_document(str(py_file))
         assert "def greet" in doc.content
         assert doc.meta["extension"] == ".py"
@@ -74,7 +76,9 @@ class TestLoadDocument:
     def test_title_from_docstring(self, tmp_path: Path) -> None:
         """从 docstring 推断标题"""
         py_file = tmp_path / "module.py"
-        py_file.write_text('"""This is a module.\n\nMore description here.\n"""\n\nVERSION = "1.0"\n')
+        py_file.write_text(
+            '"""This is a module.\n\nMore description here.\n"""\n\nVERSION = "1.0"\n'
+        )
         doc = load_document(str(py_file))
         assert doc.title == "This is a module."
 

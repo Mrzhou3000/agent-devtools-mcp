@@ -36,6 +36,7 @@ class DocumentChunk:
         end_line: 在源文档中的结束行号
         meta: 额外元数据
     """
+
     path: str
     title: str
     content: str
@@ -81,11 +82,13 @@ def split_by_paragraphs(content: str) -> list[dict[str, Any]]:
     for i, line in enumerate(lines):
         if line.strip() == "" and current_lines:
             # 空行结束一个段落
-            paragraphs.append({
-                "text": "\n".join(current_lines),
-                "start_line": current_start,
-                "end_line": i - 1,
-            })
+            paragraphs.append(
+                {
+                    "text": "\n".join(current_lines),
+                    "start_line": current_start,
+                    "end_line": i - 1,
+                }
+            )
             current_lines = []
             current_start = i + 1
         elif line.strip() != "":
@@ -93,11 +96,13 @@ def split_by_paragraphs(content: str) -> list[dict[str, Any]]:
 
     # 最后一个段落
     if current_lines:
-        paragraphs.append({
-            "text": "\n".join(current_lines),
-            "start_line": current_start,
-            "end_line": len(lines) - 1,
-        })
+        paragraphs.append(
+            {
+                "text": "\n".join(current_lines),
+                "start_line": current_start,
+                "end_line": len(lines) - 1,
+            }
+        )
 
     return paragraphs
 
@@ -121,11 +126,11 @@ def split_code(content: str, language: str = "") -> list[dict[str, Any]]:
     # 函数/类定义的正则（Python / JS / TS / Java / Rust / Go 等）
     # 注意: 所有 pattern 必须从具体关键字开始，不含前导 \s*
     def_patterns = [
-        r"^def\s+\w+",                                          # Python
-        r"^class\s+\w+",                                        # Python/Java/JS
-        r"^async\s+def\s+\w+",                                  # Python async def
-        r"^function\s+\w+",                                     # JS/TS
-        r"^const\s+\w+",                                        # JS/TS const
+        r"^def\s+\w+",  # Python
+        r"^class\s+\w+",  # Python/Java/JS
+        r"^async\s+def\s+\w+",  # Python async def
+        r"^function\s+\w+",  # JS/TS
+        r"^const\s+\w+",  # JS/TS const
         r"^(?:public|private|protected)\s+(?:static\s+)?(?:def|fun|fn|func|function|class|interface|enum|struct)\s+\w+",  # Java/Kotlin with modifier
         r"^(?:static\s+|abstract\s+|final\s+)?(?:def|fun|fn|func|function|class|interface|enum|struct)\s+\w+",  # with other modifier
     ]
@@ -136,22 +141,26 @@ def split_code(content: str, language: str = "") -> list[dict[str, Any]]:
     chunk_start = 0
 
     for match in combined.finditer(content):
-        chunk_line = content[:match.start()].count("\n")
+        chunk_line = content[: match.start()].count("\n")
         if chunk_line > chunk_start:
-            chunks.append({
-                "text": "\n".join(lines[chunk_start:chunk_line]),
-                "start_line": chunk_start,
-                "end_line": chunk_line - 1,
-            })
+            chunks.append(
+                {
+                    "text": "\n".join(lines[chunk_start:chunk_line]),
+                    "start_line": chunk_start,
+                    "end_line": chunk_line - 1,
+                }
+            )
         chunk_start = chunk_line
 
     # 剩余部分
     if chunk_start < len(lines):
-        chunks.append({
-            "text": "\n".join(lines[chunk_start:]),
-            "start_line": chunk_start,
-            "end_line": len(lines) - 1,
-        })
+        chunks.append(
+            {
+                "text": "\n".join(lines[chunk_start:]),
+                "start_line": chunk_start,
+                "end_line": len(lines) - 1,
+            }
+        )
 
     # 如果分割结果不合理（太少），退回段落分割
     if len(chunks) <= 1:
@@ -163,9 +172,26 @@ def split_code(content: str, language: str = "") -> list[dict[str, Any]]:
 def _is_code_file(path: str) -> bool:
     """判断是否为代码文件"""
     code_extensions = {
-        ".py", ".js", ".ts", ".jsx", ".tsx", ".java", ".rs", ".go",
-        ".c", ".h", ".cpp", ".hpp", ".rb", ".php", ".swift", ".kt",
-        ".scala", ".lua", ".sh", ".bash",
+        ".py",
+        ".js",
+        ".ts",
+        ".jsx",
+        ".tsx",
+        ".java",
+        ".rs",
+        ".go",
+        ".c",
+        ".h",
+        ".cpp",
+        ".hpp",
+        ".rb",
+        ".php",
+        ".swift",
+        ".kt",
+        ".scala",
+        ".lua",
+        ".sh",
+        ".bash",
     }
     ext = path.rsplit(".", 1)[-1].lower() if "." in path else ""
     return f".{ext}" in code_extensions
@@ -282,11 +308,13 @@ def _split_large_chunk(
         start_line = chunk["start_line"] + text[:start_pos].count("\n")
         end_line = chunk["start_line"] + text[:end_pos].count("\n")
 
-        sub_chunks.append({
-            "text": sub_text.strip(),
-            "start_line": start_line,
-            "end_line": end_line,
-        })
+        sub_chunks.append(
+            {
+                "text": sub_text.strip(),
+                "start_line": start_line,
+                "end_line": end_line,
+            }
+        )
 
         # 移动位置（带重叠）
         start_pos = end_pos - overlap if end_pos < len(text) else len(text)
@@ -326,14 +354,16 @@ def split_document(
 
     result: list[DocumentChunk] = []
     for i, chunk in enumerate(chunks):
-        result.append(DocumentChunk(
-            path=doc.path,
-            title=doc.title,
-            content=chunk["text"],
-            chunk_index=i,
-            start_line=chunk["start_line"],
-            end_line=chunk["end_line"],
-            meta=doc.meta,
-        ))
+        result.append(
+            DocumentChunk(
+                path=doc.path,
+                title=doc.title,
+                content=chunk["text"],
+                chunk_index=i,
+                start_line=chunk["start_line"],
+                end_line=chunk["end_line"],
+                meta=doc.meta,
+            )
+        )
 
     return result

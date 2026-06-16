@@ -2,6 +2,7 @@
 
 测试通过 FastMCP 实例注册工具，再提取并调用。
 """
+
 from __future__ import annotations
 
 from pathlib import Path

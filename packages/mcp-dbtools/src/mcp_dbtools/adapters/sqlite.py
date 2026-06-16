@@ -75,9 +75,7 @@ class SQLiteAdapter(BaseAdapter):
         ]
 
         # 获取行数
-        count_result = await self.execute_query(
-            f"SELECT COUNT(*) as cnt FROM '{table_name}'"
-        )
+        count_result = await self.execute_query(f"SELECT COUNT(*) as cnt FROM '{table_name}'")
         row_count = count_result[0]["cnt"] if count_result else 0
 
         return TableInfo(

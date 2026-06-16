@@ -49,20 +49,23 @@ class TestSQLValidator:
     # ── 非 SELECT 语句拦截（第一道防线：前缀检查）─────
 
     @pytest.mark.security
-    @pytest.mark.parametrize("bad_sql", [
-        "INSERT INTO users VALUES (1, 'admin')",
-        "UPDATE users SET name = 'hacker' WHERE id = 1",
-        "DELETE FROM users WHERE id = 1",
-        "DROP TABLE users",
-        "DROP DATABASE mydb",
-        "ALTER TABLE users ADD COLUMN hacker TEXT",
-        "CREATE TABLE hackers (id INT)",
-        "TRUNCATE TABLE users",
-        "REPLACE INTO users VALUES (1, 'admin')",
-        "GRANT ALL ON *.* TO 'hacker'",
-        "REVOKE ALL ON *.* FROM 'user'",
-        "RENAME TABLE users TO hackers",
-    ])
+    @pytest.mark.parametrize(
+        "bad_sql",
+        [
+            "INSERT INTO users VALUES (1, 'admin')",
+            "UPDATE users SET name = 'hacker' WHERE id = 1",
+            "DELETE FROM users WHERE id = 1",
+            "DROP TABLE users",
+            "DROP DATABASE mydb",
+            "ALTER TABLE users ADD COLUMN hacker TEXT",
+            "CREATE TABLE hackers (id INT)",
+            "TRUNCATE TABLE users",
+            "REPLACE INTO users VALUES (1, 'admin')",
+            "GRANT ALL ON *.* TO 'hacker'",
+            "REVOKE ALL ON *.* FROM 'user'",
+            "RENAME TABLE users TO hackers",
+        ],
+    )
     def test_non_select_rejected(self, bad_sql: str) -> None:
         """不以 SELECT/EXPLAIN/DESCRIBE/SHOW/WITH 开头的语句应该被拒绝
 
@@ -74,9 +77,12 @@ class TestSQLValidator:
     # ── SELECT 语句中包含写入操作（第二道防线）─────────
 
     @pytest.mark.security
-    @pytest.mark.parametrize("bad_sql", [
-        "SELECT 1; INSERT INTO users VALUES (2, 'hacker')",
-    ])
+    @pytest.mark.parametrize(
+        "bad_sql",
+        [
+            "SELECT 1; INSERT INTO users VALUES (2, 'hacker')",
+        ],
+    )
     def test_select_contains_write(self, bad_sql: str) -> None:
         """SELECT 语句中包含写入关键字应该被拒绝"""
         with pytest.raises(SQLValidationError, match="写入|多条"):
@@ -101,16 +107,17 @@ class TestSQLValidator:
 
     def test_semicolon_in_string(self) -> None:
         """字符串中的分号应该是安全的（不报错）"""
-        validate_readonly_query(
-            "SELECT * FROM users WHERE name = 'hello; world'"
-        )
+        validate_readonly_query("SELECT * FROM users WHERE name = 'hello; world'")
 
     # ── 参数化 SQL 注入模式 ──────────────────────────
 
     @pytest.mark.security
-    @pytest.mark.parametrize("injection_sql", [
-        "SELECT * FROM users WHERE id = 1; DROP TABLE users",
-    ])
+    @pytest.mark.parametrize(
+        "injection_sql",
+        [
+            "SELECT * FROM users WHERE id = 1; DROP TABLE users",
+        ],
+    )
     def test_sql_injection_patterns(self, injection_sql: str) -> None:
         """常见 SQL 注入模式应该被拦截"""
         with pytest.raises(SQLValidationError):
@@ -125,13 +132,16 @@ class TestSQLValidator:
         validate_table_name("_temp_table")
 
     @pytest.mark.security
-    @pytest.mark.parametrize("bad_name", [
-        "users; DROP TABLE",
-        "../../etc/passwd",
-        "users table",
-        "123table",
-        "table name with spaces",
-    ])
+    @pytest.mark.parametrize(
+        "bad_name",
+        [
+            "users; DROP TABLE",
+            "../../etc/passwd",
+            "users table",
+            "123table",
+            "table name with spaces",
+        ],
+    )
     def test_invalid_table_name(self, bad_name: str) -> None:
         """非法的表名应该被拒绝"""
         with pytest.raises(SQLValidationError):

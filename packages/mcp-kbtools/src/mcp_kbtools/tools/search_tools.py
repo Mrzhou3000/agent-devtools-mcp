@@ -51,8 +51,7 @@ def register_search_tools(
 
         if not results:
             return (
-                f"📭 未找到匹配 '{query}' 的结果\n"
-                f"💡 试试其他关键词，或先使用 add_document 添加文档"
+                f"📭 未找到匹配 '{query}' 的结果\n💡 试试其他关键词，或先使用 add_document 添加文档"
             )
 
         lines = [f"🔍 搜索 '{query}' 共找到 {len(results)} 条结果\n"]
@@ -99,9 +98,7 @@ def register_search_tools(
         except Exception as e:
             return f"❌ 获取统计信息失败: {e}"
 
-        total_size = sum(
-            f.stat().st_size for f in index_dir.rglob("*") if f.is_file()
-        )
+        total_size = sum(f.stat().st_size for f in index_dir.rglob("*") if f.is_file())
 
         return (
             f"📊 知识库统计\n"

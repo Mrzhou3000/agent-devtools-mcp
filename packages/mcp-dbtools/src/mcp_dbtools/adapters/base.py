@@ -14,6 +14,7 @@ from typing import Any
 @dataclass
 class ColumnInfo:
     """列信息"""
+
     name: str
     data_type: str
     nullable: bool
@@ -25,6 +26,7 @@ class ColumnInfo:
 @dataclass
 class TableInfo:
     """表信息"""
+
     name: str
     columns: list[ColumnInfo]
     row_count: int | None = None
@@ -53,7 +55,9 @@ class BaseAdapter(ABC):
         ...
 
     @abstractmethod
-    async def execute_query(self, sql: str, params: tuple[Any, ...] | None = None) -> list[dict[str, Any]]:
+    async def execute_query(
+        self, sql: str, params: tuple[Any, ...] | None = None
+    ) -> list[dict[str, Any]]:
         """执行查询并返回结果列表（每行一个 dict）"""
         ...
 

@@ -30,10 +30,7 @@ class BaseModel:
             if hasattr(value, "to_dict"):
                 result[field_name] = value.to_dict()
             elif isinstance(value, list):
-                result[field_name] = [
-                    v.to_dict() if hasattr(v, "to_dict") else v
-                    for v in value
-                ]
+                result[field_name] = [v.to_dict() if hasattr(v, "to_dict") else v for v in value]
             else:
                 result[field_name] = value
         return result

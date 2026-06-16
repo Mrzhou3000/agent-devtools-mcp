@@ -35,8 +35,11 @@ class TestInterceptorChain:
                 calls.append(f"before:{tool_name}")
 
             async def after(
-                self, tool_name: str, args: dict[str, Any],
-                result: Any, duration_ms: float,
+                self,
+                tool_name: str,
+                args: dict[str, Any],
+                result: Any,
+                duration_ms: float,
             ) -> None:
                 calls.append(f"after:{tool_name}")
 
@@ -50,13 +53,24 @@ class TestInterceptorChain:
     @pytest.mark.asyncio
     async def test_add_multiple_interceptors(self) -> None:
         """添加多个拦截器"""
+
         class I1(Interceptor):
-            async def before(self, tool_name: str, args: dict[str, Any]) -> None: pass
-            async def after(self, tool_name: str, args: dict[str, Any], result: Any, duration_ms: float) -> None: pass
+            async def before(self, tool_name: str, args: dict[str, Any]) -> None:
+                pass
+
+            async def after(
+                self, tool_name: str, args: dict[str, Any], result: Any, duration_ms: float
+            ) -> None:
+                pass
 
         class I2(Interceptor):
-            async def before(self, tool_name: str, args: dict[str, Any]) -> None: pass
-            async def after(self, tool_name: str, args: dict[str, Any], result: Any, duration_ms: float) -> None: pass
+            async def before(self, tool_name: str, args: dict[str, Any]) -> None:
+                pass
+
+            async def after(
+                self, tool_name: str, args: dict[str, Any], result: Any, duration_ms: float
+            ) -> None:
+                pass
 
         chain = InterceptorChain()
         chain.add(I1())
@@ -66,9 +80,15 @@ class TestInterceptorChain:
     @pytest.mark.asyncio
     async def test_remove_interceptor(self) -> None:
         """移除拦截器"""
+
         class I1(Interceptor):
-            async def before(self, tool_name: str, args: dict[str, Any]) -> None: pass
-            async def after(self, tool_name: str, args: dict[str, Any], result: Any, duration_ms: float) -> None: pass
+            async def before(self, tool_name: str, args: dict[str, Any]) -> None:
+                pass
+
+            async def after(
+                self, tool_name: str, args: dict[str, Any], result: Any, duration_ms: float
+            ) -> None:
+                pass
 
         chain = InterceptorChain()
         interceptor = I1()
@@ -79,9 +99,15 @@ class TestInterceptorChain:
     @pytest.mark.asyncio
     async def test_clear_interceptors(self) -> None:
         """清空拦截器"""
+
         class I1(Interceptor):
-            async def before(self, tool_name: str, args: dict[str, Any]) -> None: pass
-            async def after(self, tool_name: str, args: dict[str, Any], result: Any, duration_ms: float) -> None: pass
+            async def before(self, tool_name: str, args: dict[str, Any]) -> None:
+                pass
+
+            async def after(
+                self, tool_name: str, args: dict[str, Any], result: Any, duration_ms: float
+            ) -> None:
+                pass
 
         chain = InterceptorChain()
         chain.add(I1())
@@ -152,8 +178,7 @@ class TestToolResult:
 
     def test_fail_result(self) -> None:
         """失败结果"""
-        r = ToolResult.fail("出错了", code="COM_EXE_001",
-                            suggestion="请重试")
+        r = ToolResult.fail("出错了", code="COM_EXE_001", suggestion="请重试")
         assert r.success is False
         assert "出错了" in str(r)
         assert "请重试" in str(r)

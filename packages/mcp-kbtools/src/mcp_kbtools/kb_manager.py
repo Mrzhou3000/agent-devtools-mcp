@@ -101,11 +101,13 @@ class KBManager:
         """持久化知识库元数据"""
         meta_list = []
         for name, kb in self._kbs.items():
-            meta_list.append({
-                "name": name,
-                "description": kb.description,
-                "doc_count": kb.doc_count,
-            })
+            meta_list.append(
+                {
+                    "name": name,
+                    "description": kb.description,
+                    "doc_count": kb.doc_count,
+                }
+            )
         with open(self._meta_path(), "w", encoding="utf-8") as f:
             json.dump(meta_list, f, ensure_ascii=False, indent=2)
 
@@ -147,11 +149,13 @@ class KBManager:
         """列出所有知识库"""
         result = []
         for name, kb in self._kbs.items():
-            result.append({
-                "name": name,
-                "description": kb.description,
-                "doc_count": kb.doc_count,
-            })
+            result.append(
+                {
+                    "name": name,
+                    "description": kb.description,
+                    "doc_count": kb.doc_count,
+                }
+            )
         return result
 
     def get_kb(self, name: str) -> KnowledgeBase:
@@ -222,11 +226,13 @@ class KBManager:
         if chunks:
             engine_docs = []
             for chunk in chunks:
-                engine_docs.append({
-                    "path": f"{chunk.path}#L{chunk.start_line + 1}",
-                    "title": f"{chunk.title} (第 {chunk.start_line + 1} 行)",
-                    "content": chunk.content,
-                })
+                engine_docs.append(
+                    {
+                        "path": f"{chunk.path}#L{chunk.start_line + 1}",
+                        "title": f"{chunk.title} (第 {chunk.start_line + 1} 行)",
+                        "content": chunk.content,
+                    }
+                )
             kb.engine.index_documents(engine_docs)
 
         self._save_meta()

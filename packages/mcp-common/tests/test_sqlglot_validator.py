@@ -97,8 +97,7 @@ class TestValidReadonlyQueries:
     def test_with_cte(self) -> None:
         """WITH (CTE) 查询"""
         validate_readonly_query_ast(
-            "WITH active_users AS (SELECT * FROM users WHERE active = 1) "
-            "SELECT * FROM active_users"
+            "WITH active_users AS (SELECT * FROM users WHERE active = 1) SELECT * FROM active_users"
         )
 
     def test_cte_with_multiple(self) -> None:

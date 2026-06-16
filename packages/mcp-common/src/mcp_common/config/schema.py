@@ -24,11 +24,23 @@ class DevToolsConfig:
     workspace_root: str = "."
     allow_write: bool = False
     allow_command: bool = False
-    allowed_commands: list[str] = field(default_factory=lambda: [
-        "git", "python", "uv", "pip",
-        "ls", "cat", "grep", "find", "pwd", "echo",
-        "node", "npm", "npx",
-    ])
+    allowed_commands: list[str] = field(
+        default_factory=lambda: [
+            "git",
+            "python",
+            "uv",
+            "pip",
+            "ls",
+            "cat",
+            "grep",
+            "find",
+            "pwd",
+            "echo",
+            "node",
+            "npm",
+            "npx",
+        ]
+    )
     command_timeout: int = 30
 
     @classmethod
@@ -37,7 +49,24 @@ class DevToolsConfig:
             workspace_root=data.get("workspace_root", "."),
             allow_write=bool(data.get("allow_write", False)),
             allow_command=bool(data.get("allow_command", False)),
-            allowed_commands=data.get("allowed_commands", ["git", "python", "uv", "pip", "ls", "cat", "grep", "find", "pwd", "echo", "node", "npm", "npx"]),
+            allowed_commands=data.get(
+                "allowed_commands",
+                [
+                    "git",
+                    "python",
+                    "uv",
+                    "pip",
+                    "ls",
+                    "cat",
+                    "grep",
+                    "find",
+                    "pwd",
+                    "echo",
+                    "node",
+                    "npm",
+                    "npx",
+                ],
+            ),
             command_timeout=int(data.get("command_timeout", 30)),
         )
 
@@ -89,7 +118,5 @@ class AppConfig:
         return cls(
             devtools=DevToolsConfig.from_dict(data.get("devtools", {})),
             database=DatabaseConfig.from_dict(data.get("database", {})),
-            knowledge_base=KnowledgeBaseConfig.from_dict(
-                data.get("knowledge_base", {})
-            ),
+            knowledge_base=KnowledgeBaseConfig.from_dict(data.get("knowledge_base", {})),
         )

@@ -47,10 +47,7 @@ def register_kb_search_tools(mcp: FastMCP, manager: KBManager) -> None:
             )
 
         # 解析路径，提取文件名和行号
-        lines = [
-            f"🔍 搜索 '{query}' 在 '{kb_name}' 中共找到 "
-            f"{len(results)} 条结果\n"
-        ]
+        lines = [f"🔍 搜索 '{query}' 在 '{kb_name}' 中共找到 {len(results)} 条结果\n"]
         for i, r in enumerate(results, 1):
             # 解析路径如 "README.md#L10" → 文件名:行号
             location = r.path.replace("#L", " 第 ").replace("L", " 第 ")

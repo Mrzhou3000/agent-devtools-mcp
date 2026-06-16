@@ -79,9 +79,19 @@ class ConfigLoader:
                 "allow_write": False,
                 "allow_command": False,
                 "allowed_commands": [
-                    "git", "python", "uv", "pip",
-                    "ls", "cat", "grep", "find", "pwd", "echo",
-                    "node", "npm", "npx",
+                    "git",
+                    "python",
+                    "uv",
+                    "pip",
+                    "ls",
+                    "cat",
+                    "grep",
+                    "find",
+                    "pwd",
+                    "echo",
+                    "node",
+                    "npm",
+                    "npx",
                 ],
                 "command_timeout": 30,
             },
@@ -110,6 +120,7 @@ class ConfigLoader:
 
         try:
             import yaml  # type: ignore[import-untyped]
+
             with open(file_path, encoding="utf-8") as f:
                 return yaml.safe_load(f) or {}
         except ImportError:
@@ -187,7 +198,7 @@ class ConfigLoader:
                 continue
 
             # 去除前缀并分割层级
-            path = key[len(prefix):].lower().split("__")
+            path = key[len(prefix) :].lower().split("__")
 
             # 设置嵌套值
             current = config
@@ -206,11 +217,7 @@ class ConfigLoader:
     def _deep_merge(base: dict[str, Any], override: dict[str, Any]) -> None:
         """深度合并字典（override 覆盖 base）"""
         for key, value in override.items():
-            if (
-                key in base
-                and isinstance(base[key], dict)
-                and isinstance(value, dict)
-            ):
+            if key in base and isinstance(base[key], dict) and isinstance(value, dict):
                 ConfigLoader._deep_merge(base[key], value)
             else:
                 base[key] = value

@@ -88,16 +88,10 @@ def register_kb_docs_tools(mcp: FastMCP, manager: KBManager) -> None:
             return f"❌ {e}"
 
         if not docs:
-            return (
-                f"📭 知识库 '{kb_name}' 为空\n"
-                f"💡 使用 add_document 添加文档"
-            )
+            return f"📭 知识库 '{kb_name}' 为空\n💡 使用 add_document 添加文档"
 
         total_size = sum(d.size for d in docs)
-        lines = [
-            f"📚 知识库 '{kb_name}' - {len(docs)} 个文档"
-            f"（总计 {total_size / 1024:.1f}KB）\n"
-        ]
+        lines = [f"📚 知识库 '{kb_name}' - {len(docs)} 个文档（总计 {total_size / 1024:.1f}KB）\n"]
         for d in docs:
             size_str = f"{d.size / 1024:.1f}KB" if d.size > 1024 else f"{d.size}B"
             lines.append(f"  📄 {d.title}")

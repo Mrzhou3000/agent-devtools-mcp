@@ -27,8 +27,7 @@ class PathTraversalError(PermissionError):
         self.resolved_path = resolved_path
         self.workspace = workspace
         super().__init__(
-            f"路径越权: '{original_path}' 解析为 '{resolved_path}'，"
-            f"不在工作目录 '{workspace}' 内"
+            f"路径越权: '{original_path}' 解析为 '{resolved_path}'，不在工作目录 '{workspace}' 内"
         )
 
 

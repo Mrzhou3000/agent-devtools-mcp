@@ -122,7 +122,7 @@ def register_query_tools(
             nullable_mark = "" if col.nullable else " NOT NULL"
             default_str = f" DEFAULT {col.default}" if col.default else ""
             lines.append(
-                f"   {col.name:20} {col.data_type:15}" f"{nullable_mark}{default_str}{pk_mark}"
+                f"   {col.name:20} {col.data_type:15}{nullable_mark}{default_str}{pk_mark}"
             )
 
         return "\n".join(lines).strip()

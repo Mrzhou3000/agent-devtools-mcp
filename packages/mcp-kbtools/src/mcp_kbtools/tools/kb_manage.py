@@ -40,7 +40,7 @@ def register_kb_manage_tools(mcp: FastMCP, manager: KBManager) -> None:
         kbs = manager.list_kbs()
 
         if not kbs:
-            return "📭 暂无知识库\n" "💡 使用 create_kb 创建一个新的知识库"
+            return "📭 暂无知识库\n💡 使用 create_kb 创建一个新的知识库"
 
         lines = [f"📚 共 {len(kbs)} 个知识库\n"]
         for kb in kbs:
