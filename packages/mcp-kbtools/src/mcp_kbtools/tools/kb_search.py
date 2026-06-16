@@ -71,7 +71,7 @@ def register_kb_search_tools(mcp: FastMCP, manager: KBManager) -> None:
                     "  💡 试试 search_mode='bm25' 使用关键词搜索"
                 ),
                 "hybrid": (
-                    "混合搜索无结果。试试其他关键词，\n" "或安装 sentence-transformers 启用语义搜索"
+                    "混合搜索无结果。试试其他关键词，\n或安装 sentence-transformers 启用语义搜索"
                 ),
             }
             return (
@@ -88,9 +88,7 @@ def register_kb_search_tools(mcp: FastMCP, manager: KBManager) -> None:
         label = mode_labels.get(search_mode, search_mode)
 
         # 解析路径，提取文件名和行号
-        lines = [
-            f"🔍 搜索 '{query}' 在 '{kb_name}' 中" f"（{label}模式，共 {len(results)} 条结果）\n"
-        ]
+        lines = [f"🔍 搜索 '{query}' 在 '{kb_name}' 中（{label}模式，共 {len(results)} 条结果）\n"]
         for i, r in enumerate(results, 1):
             # 解析路径如 "README.md#L10" → 文件名:行号
             location = r.path.replace("#L", " 第 ").replace("L", " 第 ")
