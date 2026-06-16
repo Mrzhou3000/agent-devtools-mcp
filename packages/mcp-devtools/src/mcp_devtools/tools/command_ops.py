@@ -318,9 +318,9 @@ def register_command_tools(
 
         # 统计变更类型
         lines = [line for line in output.strip().split("\n") if line.strip()]
-        staged = sum(1 for l in lines if not l[1].strip() or l[0] != " ")
-        unstaged = sum(1 for l in lines if l[1] != " ")
-        untracked = sum(1 for l in lines if l[:2] == "??")
+        staged = sum(1 for ln in lines if not ln[1].strip() or ln[0] != " ")
+        unstaged = sum(1 for ln in lines if ln[1] != " ")
+        untracked = sum(1 for ln in lines if ln[:2] == "??")
 
         summary_parts = [f"📊 共 {len(lines)} 个变更"]
         if staged:
