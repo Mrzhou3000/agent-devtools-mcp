@@ -29,8 +29,8 @@ def vector_engine_no_st(tmp_path: Path) -> Generator[VectorEngine, None, None]:
 
 @pytest.fixture
 def mock_model() -> MagicMock:
-    """模拟 sentence-transformers 模型"""
-    import numpy as np
+    """模拟 sentence-transformers 模型（需要 numpy，否则跳过）"""
+    np = pytest.importorskip("numpy", reason="需要 numpy 来生成模拟向量")
 
     model = MagicMock()
     # encode 返回归一化的 4 维向量
