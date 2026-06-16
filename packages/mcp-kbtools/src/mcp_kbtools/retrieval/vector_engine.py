@@ -16,7 +16,7 @@ from typing import Any
 # ── 检测 sentence-transformers 是否可用 ────────────────────────
 _HAS_SENTENCE_TRANSFORMERS = False
 try:
-    import numpy as np
+    import numpy as np  # type: ignore[import-not-found, unused-ignore]
     import sentence_transformers  # type: ignore[import-not-found]
 
     _HAS_SENTENCE_TRANSFORMERS = True

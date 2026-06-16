@@ -50,7 +50,7 @@ def mock_model() -> MagicMock:
 @pytest.fixture
 def vector_engine(tmp_path: Path, mock_model: MagicMock) -> Generator[VectorEngine, None, None]:
     """功能完整的向量引擎"""
-    import numpy as np
+    import numpy as np  # type: ignore[import-not-found, unused-ignore]
 
     fake_st = MagicMock()
     fake_st.SentenceTransformer.return_value = mock_model
@@ -197,7 +197,7 @@ class TestVectorEnginePersistence:
 
     def test_save_and_load(self, tmp_path: Path, mock_model: MagicMock) -> None:
         """save → 重新加载 → 数据一致"""
-        import numpy as np
+        import numpy as np  # type: ignore[import-not-found, unused-ignore]
 
         index_dir = tmp_path / "vectors"
 
