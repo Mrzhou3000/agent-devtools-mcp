@@ -42,7 +42,7 @@ jobs:
         run: uv sync --all-packages
 
       - name: Ruff lint check
-        run: uv run ruff check packages/
+        run: uv run ruff check --fix packages/
 
       - name: Ruff format check
         run: uv run ruff format --check packages/

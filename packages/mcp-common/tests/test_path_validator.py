@@ -58,8 +58,10 @@ class TestPathValidator:
     def test_path_outside_workspace(self, tmp_path: Path) -> None:
         """工作目录外的绝对路径应该被拒绝"""
         validator = PathValidator(tmp_path)
+        # 使用 tmp_path 的父目录来构造一个不在工作区内的绝对路径
+        outside = str(tmp_path.parent / "outside.txt")
         with pytest.raises(PathTraversalError):
-            validator.validate("C:/Windows/system32")
+            validator.validate(outside)
 
     def test_path_just_inside(self, tmp_path: Path) -> None:
         """工作目录自身的路径应该通过"""
