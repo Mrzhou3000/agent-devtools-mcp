@@ -24,7 +24,13 @@ from typing import Any
 
 from .ingestion.loader import load_document
 from .ingestion.splitter import split_document
-from .retrieval import SearchEngine, SearchResult, DocInfo
+from .retrieval import (
+    DocInfo,
+    HybridSearchEngine,
+    SearchEngine,
+    SearchResult,
+    VectorEngine,
+)
 
 
 class KnowledgeBaseError(Exception):
@@ -36,16 +42,40 @@ class KnowledgeBaseError(Exception):
 class KnowledgeBase:
     """单个知识库实例"""
 
-    def __init__(self, index_dir: Path, meta: dict[str, Any]) -> None:
+    def __init__(
+        self,
+        index_dir: Path,
+        meta: dict[str, Any],
+        vector_enabled: bool = False,
+    ) -> None:
         self.index_dir = index_dir
         self.meta = meta
         self.name: str = meta["name"]
         self.description: str = meta.get("description", "")
+
+        # BM25 检索引擎（Whoosh）
         self.engine = SearchEngine(index_dir=str(index_dir))
+
+        # 向量检索引擎（sentence-transformers，可选）
+        self.vector_engine: VectorEngine | None = None
+        if vector_enabled:
+            vec_dir = index_dir / "vectors"
+            self.vector_engine = VectorEngine(index_dir=str(vec_dir))
+
+        # 混合检索引擎（统一接口）
+        self.hybrid_engine = HybridSearchEngine(
+            bm25_engine=self.engine,
+            vector_engine=self.vector_engine,
+        )
 
     @property
     def doc_count(self) -> int:
         return self.engine.doc_count
+
+    @property
+    def vector_available(self) -> bool:
+        """向量搜索是否已启用且可用"""
+        return self.vector_engine is not None and self.vector_engine.available
 
 
 class KBManager:
@@ -61,10 +91,20 @@ class KBManager:
                 ← Whoosh 索引文件
     """
 
-    def __init__(self, data_dir: str | Path = "kb_data") -> None:
+    def __init__(
+        self,
+        data_dir: str | Path = "kb_data",
+        enable_vector: bool = False,
+    ) -> None:
+        """
+        Args:
+            data_dir: 知识库数据根目录
+            enable_vector: 是否启用向量搜索（需安装 sentence-transformers）
+        """
         self._data_dir = Path(data_dir).resolve()
         self._data_dir.mkdir(parents=True, exist_ok=True)
         self._kbs: dict[str, KnowledgeBase] = {}
+        self._vector_enabled = enable_vector
 
         # 加载已有知识库
         self._load_existing()
@@ -93,7 +133,11 @@ class KBManager:
             index_dir = self._data_dir / name
             if index_dir.exists():
                 try:
-                    self._kbs[name] = KnowledgeBase(index_dir, entry)
+                    self._kbs[name] = KnowledgeBase(
+                        index_dir,
+                        entry,
+                        vector_enabled=self._vector_enabled,
+                    )
                 except Exception:
                     pass  # 索引损坏跳过
 
@@ -106,6 +150,7 @@ class KBManager:
                     "name": name,
                     "description": kb.description,
                     "doc_count": kb.doc_count,
+                    "vector_enabled": kb.vector_engine is not None,
                 }
             )
         with open(self._meta_path(), "w", encoding="utf-8") as f:
@@ -140,7 +185,11 @@ class KBManager:
         index_dir.mkdir(parents=True, exist_ok=True)
 
         meta = {"name": name, "description": description}
-        kb = KnowledgeBase(index_dir, meta)
+        kb = KnowledgeBase(
+            index_dir,
+            meta,
+            vector_enabled=self._vector_enabled,
+        )
         self._kbs[name] = kb
         self._save_meta()
         return kb
@@ -154,6 +203,7 @@ class KBManager:
                     "name": name,
                     "description": kb.description,
                     "doc_count": kb.doc_count,
+                    "vector_available": kb.vector_available,
                 }
             )
         return result
@@ -235,6 +285,18 @@ class KBManager:
                 )
             kb.engine.index_documents(engine_docs)
 
+            # 向量搜索：也将文档块索引到向量引擎
+            if kb.vector_engine and kb.vector_engine.available:
+                vec_docs = [
+                    {
+                        "path": d["path"],
+                        "title": d["title"],
+                        "content": d["content"],
+                    }
+                    for d in engine_docs
+                ]
+                kb.vector_engine.index_documents(vec_docs)
+
         self._save_meta()
 
         return {
@@ -251,6 +313,9 @@ class KBManager:
         for existing in kb.engine.list_documents():
             if existing.path.startswith(doc_path):
                 kb.engine.remove_document(existing.path)
+                # 同步删除向量索引
+                if kb.vector_engine and kb.vector_engine.available:
+                    kb.vector_engine.remove_document(existing.path)
         self._save_meta()
 
     def list_documents(self, kb_name: str) -> list[DocInfo]:
@@ -265,6 +330,7 @@ class KBManager:
         kb_name: str,
         query: str,
         top_k: int = 5,
+        mode: str = "hybrid",
     ) -> list[SearchResult]:
         """搜索知识库
 
@@ -272,9 +338,13 @@ class KBManager:
             kb_name: 知识库名称
             query: 搜索关键词
             top_k: 返回结果数量上限
+            mode: 搜索模式
+                - "bm25":   纯 BM25 关键词搜索
+                - "vector": 纯语义向量搜索
+                - "hybrid": RRF 混合搜索（默认）
 
         Returns:
             搜索结果列表
         """
         kb = self.get_kb(kb_name)
-        return kb.engine.search(query, limit=top_k)
+        return kb.hybrid_engine.search(query, limit=top_k, mode=mode)

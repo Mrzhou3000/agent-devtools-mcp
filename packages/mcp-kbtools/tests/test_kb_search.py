@@ -107,3 +107,59 @@ class TestSemanticSearch:
         tool = _find_tool(mcp, "semantic_search")
         result = await tool("wrong_kb", "Python")
         assert "❌" in result
+
+    # ── 搜索模式测试 ──────────────────────────────────
+
+    async def test_search_mode_bm25(self, mcp_and_manager: tuple[FastMCP, KBManager]) -> None:
+        """BM25 模式搜索"""
+        mcp, _ = mcp_and_manager
+        tool = _find_tool(mcp, "semantic_search")
+        result = await tool("default", "Python", search_mode="bm25")
+        assert "BM25" in result
+
+    async def test_search_mode_vector(self, mcp_and_manager: tuple[FastMCP, KBManager]) -> None:
+        """向量模式搜索（无 sentence-transformers 时降级提示）"""
+        mcp, _ = mcp_and_manager
+        tool = _find_tool(mcp, "semantic_search")
+        result = await tool("default", "Python", search_mode="vector")
+        # 无依赖时应有提示，但不抛异常
+        assert isinstance(result, str)
+
+    async def test_search_mode_hybrid(self, mcp_and_manager: tuple[FastMCP, KBManager]) -> None:
+        """混合模式搜索（回退到 BM25 的行为）"""
+        mcp, _ = mcp_and_manager
+        tool = _find_tool(mcp, "semantic_search")
+        result = await tool("default", "Python", search_mode="hybrid")
+        assert isinstance(result, str)
+        # 应该能找到结果（因为 BM25 引擎有数据）
+        assert "Python" in result or "未找到" in result
+
+    async def test_search_mode_invalid(self, mcp_and_manager: tuple[FastMCP, KBManager]) -> None:
+        """不合法的搜索模式"""
+        mcp, _ = mcp_and_manager
+        tool = _find_tool(mcp, "semantic_search")
+        result = await tool("default", "Python", search_mode="invalid")
+        assert "❌" in result
+        assert "不支持" in result or "不支持的" in result
+
+
+class TestGetSearchCapabilities:
+    """get_search_capabilities 工具测试"""
+
+    async def test_capabilities_basic(self, mcp_and_manager: tuple[FastMCP, KBManager]) -> None:
+        """查询搜索能力"""
+        mcp, _ = mcp_and_manager
+        tool = _find_tool(mcp, "get_search_capabilities")
+        assert tool is not None
+        result = await tool("default")
+        assert "BM25" in result
+        assert isinstance(result, str)
+
+    async def test_capabilities_kb_not_found(
+        self, mcp_and_manager: tuple[FastMCP, KBManager]
+    ) -> None:
+        """知识库不存在"""
+        mcp, _ = mcp_and_manager
+        tool = _find_tool(mcp, "get_search_capabilities")
+        result = await tool("wrong_kb")
+        assert "❌" in result

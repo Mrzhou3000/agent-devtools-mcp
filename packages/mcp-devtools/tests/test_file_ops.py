@@ -170,3 +170,59 @@ class TestWriteFile:
         result = write_file("x/y/no_parent.txt", "content")
         assert "❌" in result
         assert "父目录不存在" in result
+
+
+class TestReadFileEdgeCases:
+    """read_file 边界情况测试"""
+
+    def test_file_too_large(self, workspace: Path) -> None:
+        """文件过大应该被拒绝"""
+        import mcp_devtools.tools.file_ops as fo
+
+        # 创建大于 MAX_FILE_SIZE 的文件
+        large_file = workspace / "large.txt"
+        large_file.write_text("x" * (fo.MAX_FILE_SIZE + 1), encoding="utf-8")
+
+        sandbox = Sandbox(workspace_root=str(workspace))
+        mcp = FastMCP("test-devtools")
+        read_file, _ = register_file_tools(mcp, sandbox, allow_write=False)
+        result = read_file("large.txt")
+        assert "❌" in result
+        assert "文件过大" in result
+
+    def test_read_binary_bytes(self, workspace: Path) -> None:
+        """包含非 UTF-8 字节的文件"""
+        sandbox = Sandbox(workspace_root=str(workspace))
+        mcp = FastMCP("test-devtools")
+        read_file, _ = register_file_tools(mcp, sandbox, allow_write=False)
+
+        # 写入包含非 UTF-8 内容的文件
+        bin_file = workspace / "bin_data.bin"
+        bin_file.write_bytes(b"\xff\xfe\x00Hello\n")  # UTF-16 BOM 但作为文本读
+        # 用 .txt 扩展名绕过类型检查，触发解码错误
+        txt_file = workspace / "bad_utf8.txt"
+        # Python 3.12 默认严格编码，写入一些非法字节
+        txt_file.write_bytes(b"Hello\x80World\n\xff\xfetest\n")
+
+        result = read_file("bad_utf8.txt")
+        # 不崩就算通过
+        assert isinstance(result, str)
+        assert "❌" not in result or "文件读取失败" in result
+
+
+class TestWriteFileEdgeCases:
+    """write_file 边界情况测试"""
+
+    def test_write_content_too_large(self, workspace: Path) -> None:
+        """写入内容过大应该被拒绝"""
+        import mcp_devtools.tools.file_ops as fo
+
+        sandbox = Sandbox(workspace_root=str(workspace))
+        mcp = FastMCP("test-devtools")
+        _, write_file = register_file_tools(mcp, sandbox, allow_write=True)
+
+        # 写入超过 MAX_WRITE_SIZE 的内容
+        large_content = "x" * (fo.MAX_WRITE_SIZE + 1)
+        result = write_file("output.txt", large_content)
+        assert "❌" in result
+        assert "过大" in result or "最大" in result

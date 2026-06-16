@@ -21,17 +21,21 @@ from .kb_manager import KBManager
 cli = typer.Typer(help="mcp-kbtools: 知识库搜索 MCP Server")
 
 
-def create_server(data_dir: str) -> FastMCP:
+def create_server(data_dir: str, enable_vector: bool = False) -> FastMCP:
     """创建并配置 MCP Server
 
     Args:
         data_dir: 知识库数据目录（所有 KB 索引存储在此）
+        enable_vector: 是否启用向量搜索（需安装 sentence-transformers）
     """
-    manager = KBManager(data_dir=data_dir)
+    manager = KBManager(data_dir=data_dir, enable_vector=enable_vector)
 
     mcp = FastMCP(
         "mcp-kbtools",
-        instructions="知识库 MCP Server —— 知识库管理、文档索引、BM25 关键词搜索",
+        instructions=(
+            "知识库 MCP Server —— 知识库管理、文档索引、"
+            "BM25 关键词搜索 + 向量语义搜索 + 混合搜索（RRF 融合）"
+        ),
     )
 
     # 注册知识库管理工具（create_kb / list_kbs / delete_kb）
@@ -69,6 +73,11 @@ def run(
         "-d",
         help="知识库数据目录（默认 ./kb_data）",
     ),
+    enable_vector: bool = typer.Option(
+        False,
+        "--enable-vector",
+        help="启用语义向量搜索（需安装 sentence-transformers）",
+    ),
     host: str = typer.Option(
         "localhost",
         "--host",
@@ -94,8 +103,12 @@ def run(
     typer.echo("🔧 mcp-kbtools starting...")
     typer.echo(f"  数据目录: {data_path}")
     typer.echo(f"  传输模式: {transport}")
+    typer.echo(f"  向量搜索: {'已启用' if enable_vector else '未启用'}")
 
-    server = create_server(data_dir=str(data_path))
+    server = create_server(
+        data_dir=str(data_path),
+        enable_vector=enable_vector,
+    )
 
     if transport == "sse":
         typer.echo(f"  监听地址: {host}:{port}")

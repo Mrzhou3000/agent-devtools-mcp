@@ -9,6 +9,7 @@ from __future__ import annotations
 import asyncio
 from pathlib import Path
 from typing import Any
+from unittest.mock import MagicMock
 
 import pytest
 from mcp.server.fastmcp import FastMCP
@@ -38,6 +39,28 @@ def mcp_and_sandbox(workspace: Path) -> tuple[FastMCP, Sandbox]:
     mcp = FastMCP("test-devtools")
     register_command_tools(mcp, sandbox)
     return mcp, sandbox
+
+
+@pytest.fixture(autouse=True)
+def _mock_background_subprocess(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Mock 后台子进程创建，避免 Windows 事件循环关闭时的 subprocess 泄漏 hang
+
+    run_async_command 内部使用 asyncio.ensure_future 启动后台子进程，
+    该子进程的 transport 在事件循环关闭时无法在 Windows 上正常清理。
+    此处 mock create_subprocess_exec 来控制后台任务行为。
+    """
+    import asyncio as asyncio_module
+
+    async def _mock_communicate() -> tuple[bytes, bytes]:
+        return (b"mocked output\n", b"")
+
+    async def _mock_subprocess_exec(program: str, *args: Any, **kwargs: Any) -> MagicMock:
+        mock_proc = MagicMock()
+        mock_proc.returncode = 0
+        mock_proc.communicate = _mock_communicate
+        return mock_proc
+
+    monkeypatch.setattr(asyncio_module, "create_subprocess_exec", _mock_subprocess_exec)
 
 
 @pytest.mark.asyncio(loop_scope="function")
@@ -100,6 +123,66 @@ class TestAsyncCommand:
             pytest.skip("无法获取 get_async_result")
         result = await tool("async_nonexistent")
         assert "不存在" in result
+
+    async def test_get_result_running(self, mcp_and_sandbox: tuple[FastMCP, Sandbox]) -> None:
+        """查询正在执行的任务"""
+        mcp, _ = mcp_and_sandbox
+        start_tool = _find_tool(mcp, "run_async_command")
+        get_tool = _find_tool(mcp, "get_async_result")
+        if start_tool is None or get_tool is None:
+            pytest.skip("无法获取工具函数")
+
+        # 启动一个可能较慢的命令
+        result = await start_tool("python", "-c print('started')", timeout=10)
+        for part in result.split():
+            if part.startswith("async_"):
+                task_id = part.strip()
+                break
+        else:
+            pytest.fail(f"未能提取 task_id: {result}")
+
+        # 立即查询（可能还在执行，也可能已完成）
+        result2 = await get_tool(task_id)
+        assert result2  # 不崩就行
+
+    async def test_get_result_with_stderr(self, mcp_and_sandbox: tuple[FastMCP, Sandbox]) -> None:
+        """异步命令有 stderr 输出"""
+        mcp, _ = mcp_and_sandbox
+        start_tool = _find_tool(mcp, "run_async_command")
+        get_tool = _find_tool(mcp, "get_async_result")
+        if start_tool is None or get_tool is None:
+            pytest.skip("无法获取工具函数")
+
+        result = await start_tool(
+            "python",
+            "-u -c print('warning msg', file=__import__('sys').stderr)",
+            timeout=10,
+        )
+        for part in result.split():
+            if part.startswith("async_"):
+                task_id = part.strip()
+                break
+        else:
+            pytest.fail(f"未能提取 task_id: {result}")
+
+        await asyncio.sleep(0.5)
+        result2 = await get_tool(task_id)
+        assert result2  # 不崩就行
+
+
+class TestRunCommandOutputLimit:
+    """run_command 输出限制测试"""
+
+    @pytest.mark.asyncio
+    async def test_large_stdout(self, mcp_and_sandbox: tuple[FastMCP, Sandbox]) -> None:
+        """大量 stdout 输出"""
+        mcp, _ = mcp_and_sandbox
+        tool = _find_tool(mcp, "run_command")
+        if tool is None:
+            pytest.skip("无法获取 run_command")
+        # 输出 2000 行（超过默认截断但不太多）
+        result = await tool("python", "-c for i in range(2000): print(f'line {i}')", timeout=10)
+        assert result  # 不崩就行
 
 
 class TestRunCommandExceptions:

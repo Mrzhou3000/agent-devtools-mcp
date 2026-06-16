@@ -45,9 +45,12 @@ def register_kb_manage_tools(mcp: FastMCP, manager: KBManager) -> None:
         lines = [f"📚 共 {len(kbs)} 个知识库\n"]
         for kb in kbs:
             doc_str = f"{kb['doc_count']} 个文档" if kb["doc_count"] > 0 else "空"
+            vec_str = "🧠 向量就绪" if kb.get("vector_available") else ""
             lines.append(f"  📂 {kb['name']}")
             lines.append(f"     描述: {kb['description'] or '无'}")
             lines.append(f"     文档: {doc_str}")
+            if vec_str:
+                lines.append(f"     {vec_str}")
             lines.append("")
 
         return "\n".join(lines).strip()
