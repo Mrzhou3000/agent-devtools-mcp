@@ -24,7 +24,6 @@
 
 from __future__ import annotations
 
-import re
 from typing import Set
 
 
@@ -35,16 +34,16 @@ class CommandValidationError(PermissionError):
 # 危险字符 —— 这些字符在 shell 中有特殊含义
 # 如果参数中包含它们，可能是注入攻击
 DANGEROUS_CHARS: Set[str] = {
-    ";",    # 命令分隔符
-    "`",    # 命令替换
-    "$",    # 变量引用 / 命令替换 $(...)
-    "|",    # 管道
-    "&&",   # 与运算
-    "||",   # 或运算
-    ">",    # 重定向输出
-    "<",    # 重定向输入
-    "&",    # 后台运行
-    "\n",   # 换行（多行命令）
+    ";",  # 命令分隔符
+    "`",  # 命令替换
+    "$",  # 变量引用 / 命令替换 $(...)
+    "|",  # 管道
+    "&&",  # 与运算
+    "||",  # 或运算
+    ">",  # 重定向输出
+    "<",  # 重定向输入
+    "&",  # 后台运行
+    "\n",  # 换行（多行命令）
 }
 
 # 默认白名单 —— 只允许这些命令被执行
@@ -53,17 +52,32 @@ DEFAULT_ALLOWED_COMMANDS: Set[str] = {
     # 版本控制
     "git",
     # Python 生态
-    "python", "python3", "uv", "pip",
+    "python",
+    "python3",
+    "uv",
+    "pip",
     # Node.js 生态
-    "node", "npm", "npx",
+    "node",
+    "npm",
+    "npx",
     # 文件查看（只读）
-    "ls", "cat", "head", "tail", "grep", "find", "wc",
+    "ls",
+    "cat",
+    "head",
+    "tail",
+    "grep",
+    "find",
+    "wc",
     # 目录 / 路径
-    "pwd", "which", "echo",
+    "pwd",
+    "which",
+    "echo",
     # 构建工具
-    "make", "cmake",
+    "make",
+    "cmake",
     # 代码格式化
-    "ruff", "black",
+    "ruff",
+    "black",
 }
 
 
