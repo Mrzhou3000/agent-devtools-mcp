@@ -6,20 +6,20 @@
 
 from __future__ import annotations
 
-import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from whoosh.analysis import StandardAnalyzer  # type: ignore[import-not-found]
-from whoosh.fields import ID, TEXT, Schema  # type: ignore[import-not-found]
-from whoosh.index import Index, create_in, open_dir  # type: ignore[import-not-found]
-from whoosh.qparser import QueryParser  # type: ignore[import-not-found]
+from whoosh.analysis import StandardAnalyzer  # type: ignore[import-untyped]
+from whoosh.fields import ID, TEXT, Schema  # type: ignore[import-untyped]
+from whoosh.index import Index, create_in, open_dir  # type: ignore[import-untyped]
+from whoosh.qparser import QueryParser  # type: ignore[import-untyped]
 
 
 @dataclass
 class SearchResult:
     """搜索结果"""
+
     path: str
     title: str
     content: str
@@ -30,6 +30,7 @@ class SearchResult:
 @dataclass
 class DocInfo:
     """文档信息"""
+
     path: str
     title: str
     size: int
@@ -115,16 +116,18 @@ class SearchEngine:
             results = []
             for fields in searcher.all_stored_fields():
                 content = fields.get("content", "")
-                results.append(DocInfo(
-                    path=fields.get("path", ""),
-                    title=fields.get("title", ""),
-                    size=len(content),
-                ))
+                results.append(
+                    DocInfo(
+                        path=fields.get("path", ""),
+                        title=fields.get("title", ""),
+                        size=len(content),
+                    )
+                )
             return results
 
     def get_document(self, path: str) -> dict[str, Any] | None:
         """按路径获取单个文档"""
-        from whoosh.query import Term  # type: ignore[import-not-found]
+        from whoosh.query import Term  # type: ignore[import-untyped]
 
         with self._index.searcher() as searcher:
             results = searcher.search(Term("path", path), limit=1)
@@ -163,11 +166,13 @@ class SearchEngine:
 
             search_results = []
             for hit in results:
-                search_results.append(SearchResult(
-                    path=hit["path"],
-                    title=hit["title"],
-                    content=hit["content"],
-                    score=hit.score,
-                    highlights=hit.highlights("content", top=3) or "",
-                ))
+                search_results.append(
+                    SearchResult(
+                        path=hit["path"],
+                        title=hit["title"],
+                        content=hit["content"],
+                        score=hit.score,
+                        highlights=hit.highlights("content", top=3) or "",
+                    )
+                )
             return search_results

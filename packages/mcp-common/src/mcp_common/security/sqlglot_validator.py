@@ -25,7 +25,7 @@ from typing import Any, TYPE_CHECKING
 from .sql_validator import SQLValidationError
 
 try:
-    import sqlglot  # type: ignore[import-not-found]
+    import sqlglot
     from sqlglot import exp
 
     HAS_SQLGLOT = True
@@ -45,20 +45,24 @@ _READONLY_COMMANDS: frozenset[str] = frozenset()
 
 # 在非 TYPE_CHECKING 时也构造（如果 sqlglot 可用）
 if HAS_SQLGLOT:
-    _READONLY_TYPES = frozenset([
-        exp.Select,
-        exp.Describe,
-        exp.Union,
-        exp.Intersect,
-        exp.Except,
-    ])
-    _READONLY_COMMANDS = frozenset([
-        "EXPLAIN",
-        "SHOW",
-    ])
+    _READONLY_TYPES = frozenset(
+        [
+            exp.Select,
+            exp.Describe,
+            exp.Union,
+            exp.Intersect,
+            exp.Except,
+        ]
+    )
+    _READONLY_COMMANDS = frozenset(
+        [
+            "EXPLAIN",
+            "SHOW",
+        ]
+    )
 
 
-def _is_readonly_statement(node: exp.Expression) -> bool:
+def _is_readonly_statement(node: exp.Expr) -> bool:
     """检查 AST 是否为只读语句"""
     if not HAS_SQLGLOT:
         return True  # 没有 sqlglot 时不做 AST 检查，由正则层负责
@@ -72,7 +76,7 @@ def _is_readonly_statement(node: exp.Expression) -> bool:
     return False
 
 
-def _find_write_operations(node: exp.Expression) -> list[str]:
+def _find_write_operations(node: exp.Expr) -> list[str]:
     """在 AST 中查找所有写操作节点，返回操作名列表"""
     writes: list[str] = []
     if not HAS_SQLGLOT:
@@ -93,11 +97,13 @@ def _find_write_operations(node: exp.Expression) -> list[str]:
     }
 
     # 这些操作在 sqlglot 中被解析为 Command（Command.this 是命令名）
-    write_commands: frozenset[str] = frozenset([
-        "REPLACE",
-        "RENAME",
-        "CALL",
-    ])
+    write_commands: frozenset[str] = frozenset(
+        [
+            "REPLACE",
+            "RENAME",
+            "CALL",
+        ]
+    )
 
     for child in node.walk():
         # 检查已知 AST 类型
@@ -147,9 +153,7 @@ def validate_readonly_query_ast(sql: str) -> None:
         parsed = sqlglot.parse_one(stripped, read="sqlite")
     except (sqlglot.errors.ParseError, sqlglot.errors.TokenError) as e:
         raise SQLValidationError(
-            f"SQL 语法解析失败，无法验证安全性\n"
-            f"  {e}\n"
-            f"💡 请检查 SQL 语法是否正确"
+            f"SQL 语法解析失败，无法验证安全性\n" f"  {e}\n" f"💡 请检查 SQL 语法是否正确"
         )
     except Exception as e:
         raise SQLValidationError(f"SQL 解析异常: {e}")
@@ -168,8 +172,7 @@ def validate_readonly_query_ast(sql: str) -> None:
     if writes:
         ops = ", ".join(writes)
         raise SQLValidationError(
-            f"查询中包含被禁止的写入操作: {ops}\n"
-            f"💡 本服务仅支持只读查询，如需写入请联系管理员"
+            f"查询中包含被禁止的写入操作: {ops}\n" f"💡 本服务仅支持只读查询，如需写入请联系管理员"
         )
 
     # 3️⃣ 多语句检查
@@ -180,7 +183,9 @@ def validate_readonly_query_ast(sql: str) -> None:
         # 过滤掉 None（空语句）和末尾空白语句
         all_statements = [s for s in all_statements if s is not None]
         if len(all_statements) > 1:
-            extra = ", ".join(s.key.upper() for s in all_statements[1:] if hasattr(s, "key"))
+            extra = ", ".join(
+                s.key.upper() for s in all_statements[1:] if s is not None and hasattr(s, "key")
+            )
             raise SQLValidationError(
                 f"不允许执行多条语句（检测到 {len(all_statements)} 条）\n"
                 f"  额外语句: {extra}\n"

@@ -56,7 +56,7 @@ class PostgreSQLAdapter(BaseAdapter):
         self._password = password
 
     async def connect(self) -> None:
-        import asyncpg  # type: ignore[import-not-found]
+        import asyncpg  # type: ignore[import-untyped]
 
         self._connection = await asyncpg.connect(
             host=self._host,

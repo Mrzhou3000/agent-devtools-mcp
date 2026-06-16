@@ -20,13 +20,11 @@ import sys
 from typing import Any
 
 try:
-    import structlog  # type: ignore[import-not-found]
+    import structlog
 
     HAS_STRUCTLOG = True
 except ImportError:  # pragma: no cover
     HAS_STRUCTLOG = False
-
-from .trace import get_trace_id
 
 
 class _FallbackLogger:
