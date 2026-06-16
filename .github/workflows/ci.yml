@@ -39,7 +39,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install dependencies
-        run: uv sync --group dev
+        run: uv sync
 
       - name: Ruff lint check
         run: uv run ruff check packages/
@@ -75,7 +75,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install dependencies
-        run: uv sync --group dev
+        run: uv sync
 
       - name: Test with pytest
         run: uv run pytest -v --cov=packages/ --cov-report=xml
