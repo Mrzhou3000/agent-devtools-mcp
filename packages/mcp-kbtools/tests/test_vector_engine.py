@@ -14,7 +14,6 @@ from pathlib import Path
 from typing import Any, Generator
 from unittest.mock import MagicMock, patch
 
-import numpy as np
 import pytest
 
 from mcp_kbtools.retrieval.vector_engine import VectorEngine
@@ -31,6 +30,8 @@ def vector_engine_no_st(tmp_path: Path) -> Generator[VectorEngine, None, None]:
 @pytest.fixture
 def mock_model() -> MagicMock:
     """模拟 sentence-transformers 模型"""
+    import numpy as np
+
     model = MagicMock()
     # encode 返回归一化的 4 维向量
     model.encode.side_effect = (
@@ -49,6 +50,8 @@ def mock_model() -> MagicMock:
 @pytest.fixture
 def vector_engine(tmp_path: Path, mock_model: MagicMock) -> Generator[VectorEngine, None, None]:
     """功能完整的向量引擎"""
+    import numpy as np
+
     fake_st = MagicMock()
     fake_st.SentenceTransformer.return_value = mock_model
 
@@ -194,6 +197,8 @@ class TestVectorEnginePersistence:
 
     def test_save_and_load(self, tmp_path: Path, mock_model: MagicMock) -> None:
         """save → 重新加载 → 数据一致"""
+        import numpy as np
+
         index_dir = tmp_path / "vectors"
 
         fake_st = MagicMock()
