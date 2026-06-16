@@ -25,7 +25,7 @@ def register_kb_manage_tools(mcp: FastMCP, manager: KBManager) -> None:
             description: 知识库描述（可选）
         """
         try:
-            kb = manager.create_kb(name, description)
+            manager.create_kb(name, description)
             return (
                 f"✅ 知识库创建成功: '{name}'\n"
                 f"💡 描述: {description or '无'}\n"
@@ -40,14 +40,11 @@ def register_kb_manage_tools(mcp: FastMCP, manager: KBManager) -> None:
         kbs = manager.list_kbs()
 
         if not kbs:
-            return (
-                "📭 暂无知识库\n"
-                "💡 使用 create_kb 创建一个新的知识库"
-            )
+            return "📭 暂无知识库\n" "💡 使用 create_kb 创建一个新的知识库"
 
         lines = [f"📚 共 {len(kbs)} 个知识库\n"]
         for kb in kbs:
-            doc_str = f"{kb['doc_count']} 个文档" if kb['doc_count'] > 0 else "空"
+            doc_str = f"{kb['doc_count']} 个文档" if kb["doc_count"] > 0 else "空"
             lines.append(f"  📂 {kb['name']}")
             lines.append(f"     描述: {kb['description'] or '无'}")
             lines.append(f"     文档: {doc_str}")

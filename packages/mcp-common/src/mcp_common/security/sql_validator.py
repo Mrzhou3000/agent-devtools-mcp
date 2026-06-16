@@ -93,8 +93,7 @@ def validate_readonly_query(sql: str) -> None:
     cleaned = cleaned.rstrip(";")
     if ";" in cleaned:
         raise SQLValidationError(
-            "不允许执行多条语句（检测到分号）\n"
-            f"💡 如果确实需要执行多条语句，请分开调用"
+            "不允许执行多条语句（检测到分号）\n" "💡 如果确实需要执行多条语句，请分开调用"
         )
 
 
@@ -113,10 +112,7 @@ def validate_table_name(name: str) -> None:
         raise SQLValidationError("表名不能为空")
 
     if not re.match(r"^[a-zA-Z_][a-zA-Z0-9_]*$", name):
-        raise SQLValidationError(
-            f"非法的表名: '{name}'\n"
-            f"💡 表名只能包含字母、数字和下划线"
-        )
+        raise SQLValidationError(f"非法的表名: '{name}'\n" f"💡 表名只能包含字母、数字和下划线")
 
 
 def _starts_with_allowed_prefix(sql: str) -> bool:

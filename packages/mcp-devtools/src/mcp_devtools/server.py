@@ -101,7 +101,7 @@ def run(
         typer.echo(f"❌ 工作目录不存在: {workspace_path}", err=True)
         raise typer.Exit(1)
 
-    typer.echo(f"🔧 mcp-devtools starting...")
+    typer.echo("🔧 mcp-devtools starting...")
     typer.echo(f"  工作目录: {workspace_path}")
     typer.echo(f"  允许写入: {allow_write}")
     typer.echo(f"  传输模式: {transport}")

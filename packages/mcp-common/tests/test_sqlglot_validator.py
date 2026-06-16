@@ -9,9 +9,10 @@
   - 语法错误处理
   - sqlglot 未安装回退
 """
+
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import pytest
 
@@ -23,6 +24,7 @@ try:
         HAS_SQLGLOT,
         validate_readonly_query_ast,
     )
+
     HAS_SQLGLOT_IMPORT = HAS_SQLGLOT
 except ImportError:
     HAS_SQLGLOT_IMPORT = False
@@ -35,6 +37,7 @@ if TYPE_CHECKING or HAS_SQLGLOT_IMPORT:
 # ============================================================
 # 基础只读查询
 # ============================================================
+
 
 class TestValidReadonlyQueries:
     """合法的只读查询应该通过 AST 校验"""
@@ -65,9 +68,7 @@ class TestValidReadonlyQueries:
 
     def test_select_with_subquery(self) -> None:
         """子查询"""
-        validate_readonly_query_ast(
-            "SELECT * FROM users WHERE id IN (SELECT user_id FROM orders)"
-        )
+        validate_readonly_query_ast("SELECT * FROM users WHERE id IN (SELECT user_id FROM orders)")
 
     def test_select_with_limit(self) -> None:
         """带 LIMIT 的 SELECT"""
@@ -79,9 +80,7 @@ class TestValidReadonlyQueries:
 
     def test_select_with_union(self) -> None:
         """UNION 查询"""
-        validate_readonly_query_ast(
-            "SELECT name FROM users UNION SELECT name FROM admins"
-        )
+        validate_readonly_query_ast("SELECT name FROM users UNION SELECT name FROM admins")
 
     def test_select_with_trailing_semicolon(self) -> None:
         """末尾分号是合法的"""
@@ -124,25 +123,29 @@ class TestValidReadonlyQueries:
 # 写操作拦截
 # ============================================================
 
+
 class TestWriteOperationsRejected:
     """所有写入操作应该被 AST 拒绝"""
 
-    @pytest.mark.parametrize("sql,op", [
-        ("DROP TABLE users", "DROP"),
-        ("DROP DATABASE mydb", "DROP"),
-        ("INSERT INTO users VALUES (1, 'admin')", "INSERT"),
-        ("UPDATE users SET name = 'hacker' WHERE id = 1", "UPDATE"),
-        ("DELETE FROM users WHERE id = 1", "DELETE"),
-        ("ALTER TABLE users ADD COLUMN hacker TEXT", "ALTER"),
-        ("CREATE TABLE hackers (id INT)", "CREATE"),
-        ("TRUNCATE TABLE users", "TRUNCATE"),
-        ("REPLACE INTO users VALUES (1, 'admin')", "REPLACE"),
-        ("RENAME TABLE users TO hackers", "RENAME"),
-        ("MERGE INTO target USING source ON id = id WHEN MATCHED THEN UPDATE", "MERGE"),
-        ("GRANT SELECT ON users TO 'hacker'", "GRANT"),
-        ("REVOKE SELECT ON users FROM 'user'", "REVOKE"),
-        ("CALL some_procedure()", "CALL"),
-    ])
+    @pytest.mark.parametrize(
+        "sql,op",
+        [
+            ("DROP TABLE users", "DROP"),
+            ("DROP DATABASE mydb", "DROP"),
+            ("INSERT INTO users VALUES (1, 'admin')", "INSERT"),
+            ("UPDATE users SET name = 'hacker' WHERE id = 1", "UPDATE"),
+            ("DELETE FROM users WHERE id = 1", "DELETE"),
+            ("ALTER TABLE users ADD COLUMN hacker TEXT", "ALTER"),
+            ("CREATE TABLE hackers (id INT)", "CREATE"),
+            ("TRUNCATE TABLE users", "TRUNCATE"),
+            ("REPLACE INTO users VALUES (1, 'admin')", "REPLACE"),
+            ("RENAME TABLE users TO hackers", "RENAME"),
+            ("MERGE INTO target USING source ON id = id WHEN MATCHED THEN UPDATE", "MERGE"),
+            ("GRANT SELECT ON users TO 'hacker'", "GRANT"),
+            ("REVOKE SELECT ON users FROM 'user'", "REVOKE"),
+            ("CALL some_procedure()", "CALL"),
+        ],
+    )
     def test_write_operation_rejected(self, sql: str, op: str) -> None:
         """写操作应该被拒绝"""
         with pytest.raises(SQLValidationError):
@@ -153,6 +156,7 @@ class TestWriteOperationsRejected:
 # 子查询 / CTE 中的隐藏写操作
 # ============================================================
 
+
 class TestHiddenWriteOperations:
     """在只读结构内部隐藏写操作"""
 
@@ -160,9 +164,7 @@ class TestHiddenWriteOperations:
     def test_cte_with_drop(self) -> None:
         """CTE 中不能有 DROP"""
         with pytest.raises(SQLValidationError, match="DROP"):
-            validate_readonly_query_ast(
-                "WITH dropped AS (DROP TABLE users) SELECT * FROM dropped"
-            )
+            validate_readonly_query_ast("WITH dropped AS (DROP TABLE users) SELECT * FROM dropped")
 
     @pytest.mark.security
     def test_cte_with_insert(self) -> None:
@@ -176,9 +178,7 @@ class TestHiddenWriteOperations:
     def test_subquery_with_update(self) -> None:
         """子查询中不能有 UPDATE"""
         with pytest.raises(SQLValidationError, match="UPDATE"):
-            validate_readonly_query_ast(
-                "SELECT * FROM (UPDATE users SET name = 'x') AS t"
-            )
+            validate_readonly_query_ast("SELECT * FROM (UPDATE users SET name = 'x') AS t")
 
     @pytest.mark.security
     def test_nested_cte_write(self) -> None:
@@ -196,6 +196,7 @@ class TestHiddenWriteOperations:
 # ============================================================
 # 多语句注入
 # ============================================================
+
 
 class TestMultiStatementDetection:
     """分号分隔的多条语句应该被拦截"""
@@ -222,42 +223,36 @@ class TestMultiStatementDetection:
     def test_hidden_multi_statement(self) -> None:
         """注释中的分号不应该影响检测"""
         with pytest.raises(SQLValidationError):
-            validate_readonly_query_ast(
-                "SELECT * FROM users; /* comment */ SELECT * FROM admins"
-            )
+            validate_readonly_query_ast("SELECT * FROM users; /* comment */ SELECT * FROM admins")
 
 
 # ============================================================
 # 注释处理
 # ============================================================
 
+
 class TestCommentHandling:
     """注释中的关键字不应该影响检测"""
 
     def test_select_with_line_comment(self) -> None:
         """行注释（--）"""
-        validate_readonly_query_ast(
-            "SELECT * FROM users -- this is a comment"
-        )
+        validate_readonly_query_ast("SELECT * FROM users -- this is a comment")
 
     def test_select_with_block_comment(self) -> None:
         """块注释（/* */）"""
-        validate_readonly_query_ast(
-            "SELECT * FROM users /* comment with DROP inside */"
-        )
+        validate_readonly_query_ast("SELECT * FROM users /* comment with DROP inside */")
 
     @pytest.mark.security
     def test_block_comment_with_write(self) -> None:
         """块注释后的写操作应该被拦截"""
         with pytest.raises(SQLValidationError):
-            validate_readonly_query_ast(
-                "SELECT 1; /* comment */ INSERT INTO users VALUES (1)"
-            )
+            validate_readonly_query_ast("SELECT 1; /* comment */ INSERT INTO users VALUES (1)")
 
 
 # ============================================================
 # 边界条件和错误处理
 # ============================================================
+
 
 class TestEdgeCases:
     """边界条件和错误处理"""
@@ -276,14 +271,13 @@ class TestEdgeCases:
     def test_sql_injection_via_union(self) -> None:
         """UNION 注入 —— UNION 是只读的"""
         # UNION 本身是只读的，应该通过
-        validate_readonly_query_ast(
-            "SELECT * FROM users UNION SELECT * FROM admins"
-        )
+        validate_readonly_query_ast("SELECT * FROM users UNION SELECT * FROM admins")
 
 
 # ============================================================
 # sqlglot 回退行为 (HAS_SQLGLOT = False)
 # ============================================================
+
 
 class TestFallbackBehavior:
     """sqlglot 未安装时的行为"""
@@ -310,6 +304,7 @@ class TestFallbackBehavior:
 # 语法错误
 # ============================================================
 
+
 class TestSyntaxErrors:
     """SQL 语法错误处理"""
 
@@ -333,6 +328,7 @@ class TestSyntaxErrors:
 # 大小写不敏感性
 # ============================================================
 
+
 class TestCaseInsensitivity:
     """SQL 关键字大小写不敏感"""
 
@@ -355,13 +351,16 @@ class TestCaseInsensitivity:
 # 性能测试（确保不会超时）
 # ============================================================
 
+
 class TestPerformance:
     """SQL 解析性能"""
 
     def test_large_query(self) -> None:
         """较大的查询不应该超时"""
         columns = ", ".join(f"col_{i}" for i in range(100))
-        sql = f"SELECT {columns} FROM very_large_table WHERE id IN (SELECT ref_id FROM another_table)"
+        sql = (
+            f"SELECT {columns} FROM very_large_table WHERE id IN (SELECT ref_id FROM another_table)"
+        )
         # 应该快速完成
         validate_readonly_query_ast(sql)
 
@@ -369,10 +368,7 @@ class TestPerformance:
         """深层嵌套的查询"""
         sql = (
             "WITH "
-            + ", ".join(
-                f"lv_{i} AS (SELECT * FROM base WHERE level = {i})"
-                for i in range(20)
-            )
+            + ", ".join(f"lv_{i} AS (SELECT * FROM base WHERE level = {i})" for i in range(20))
             + " SELECT * FROM lv_19"
         )
         validate_readonly_query_ast(sql)

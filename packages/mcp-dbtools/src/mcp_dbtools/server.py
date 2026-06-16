@@ -71,7 +71,7 @@ def run(
         typer.echo(f"❌ 数据库文件不存在: {db_path}", err=True)
         raise typer.Exit(1)
 
-    typer.echo(f"🔧 mcp-dbtools starting...")
+    typer.echo("🔧 mcp-dbtools starting...")
     typer.echo(f"  数据库: {db_path}")
     typer.echo(f"  传输模式: {transport}")
 

@@ -25,21 +25,58 @@ from mcp_common.security.sandbox import Sandbox
 # 只允许这些扩展名，防止读取二进制文件
 ALLOWED_TEXT_EXTENSIONS: set[str] = {
     # 代码文件
-    ".py", ".js", ".ts", ".jsx", ".tsx",
-    ".java", ".c", ".cpp", ".h", ".hpp",
-    ".go", ".rs", ".rb", ".php", ".swift",
-    ".kt", ".scala", ".sh", ".bash", ".zsh",
+    ".py",
+    ".js",
+    ".ts",
+    ".jsx",
+    ".tsx",
+    ".java",
+    ".c",
+    ".cpp",
+    ".h",
+    ".hpp",
+    ".go",
+    ".rs",
+    ".rb",
+    ".php",
+    ".swift",
+    ".kt",
+    ".scala",
+    ".sh",
+    ".bash",
+    ".zsh",
     # Web 前端
-    ".html", ".css", ".scss", ".less", ".vue",
+    ".html",
+    ".css",
+    ".scss",
+    ".less",
+    ".vue",
     # 配置文件
-    ".json", ".yaml", ".yml", ".toml", ".ini",
-    ".cfg", ".conf", ".env", ".editorconfig",
+    ".json",
+    ".yaml",
+    ".yml",
+    ".toml",
+    ".ini",
+    ".cfg",
+    ".conf",
+    ".env",
+    ".editorconfig",
     # 文档
-    ".md", ".mdx", ".rst", ".txt", ".log",
-    ".csv", ".xml", ".svg",
+    ".md",
+    ".mdx",
+    ".rst",
+    ".txt",
+    ".log",
+    ".csv",
+    ".xml",
+    ".svg",
     # 项目文件
-    ".lock", ".gitignore", ".dockerfile",
-    ".makefile", ".gradle", ".properties",
+    ".lock",
+    ".gitignore",
+    ".dockerfile",
+    ".makefile",
+    ".gradle",
+    ".properties",
 }
 
 # 最大读取大小（1MB）
@@ -144,11 +181,12 @@ def register_file_tools(
         def write_file(file_path: str, content: str) -> str:
             """写入文件（提示已禁用）"""
             return (
-                f"❌ 文件写入操作未启用\n"
-                f"💡 如需启用，请配置 --allow-write 参数\n"
-                f"💡 安全提示: 写入操作默认禁用，请确认你信任当前 AI 客户端"
+                "❌ 文件写入操作未启用\n"
+                "💡 如需启用，请配置 --allow-write 参数\n"
+                "💡 安全提示: 写入操作默认禁用，请确认你信任当前 AI 客户端"
             )
     else:
+
         @mcp.tool(description="向文件写入内容，自动创建父目录，使用原子写入保障数据安全")
         def write_file(
             file_path: str,
@@ -164,7 +202,6 @@ def register_file_tools(
             """
             # 1️⃣ 路径校验
             try:
-                safe_dir = sandbox.path_validator.workspace_root
                 target_path = sandbox.validate_path(file_path)
             except PermissionError as e:
                 return f"❌ 路径越权: {e}"

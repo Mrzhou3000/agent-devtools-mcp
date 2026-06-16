@@ -11,6 +11,7 @@
   - 错误处理
   - 策略模式兼容性
 """
+
 from __future__ import annotations
 
 from typing import Any
@@ -19,7 +20,6 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 from mcp_dbtools.adapters import PostgreSQLAdapter
-from mcp_dbtools.adapters.base import ColumnInfo, TableInfo
 
 
 @pytest.fixture
@@ -93,61 +93,65 @@ class TestExecuteQuery:
         adapter._connection = mock_connection
 
         # 模拟返回数据
-        mock_connection.fetch = AsyncMock(return_value=[
-            create_record({"id": 1, "name": "Alice", "age": 30}),
-            create_record({"id": 2, "name": "Bob", "age": 25}),
-        ])
+        mock_connection.fetch = AsyncMock(
+            return_value=[
+                create_record({"id": 1, "name": "Alice", "age": 30}),
+                create_record({"id": 2, "name": "Bob", "age": 25}),
+            ]
+        )
 
         result = await adapter.execute_query("SELECT * FROM users ORDER BY id")
 
         assert len(result) == 2
         assert result[0]["name"] == "Alice"
         assert result[1]["name"] == "Bob"
-        mock_connection.fetch.assert_called_once_with(
-            "SELECT * FROM users ORDER BY id"
-        )
+        mock_connection.fetch.assert_called_once_with("SELECT * FROM users ORDER BY id")
 
-    async def test_select_with_params(self, adapter: PostgreSQLAdapter, mock_connection: MagicMock) -> None:
+    async def test_select_with_params(
+        self, adapter: PostgreSQLAdapter, mock_connection: MagicMock
+    ) -> None:
         """带参数的查询"""
         adapter._connection = mock_connection
 
-        mock_connection.fetch = AsyncMock(return_value=[
-            create_record({"id": 1, "name": "Alice"}),
-        ])
-
-        result = await adapter.execute_query(
-            "SELECT * FROM users WHERE id = $1", (1,)
+        mock_connection.fetch = AsyncMock(
+            return_value=[
+                create_record({"id": 1, "name": "Alice"}),
+            ]
         )
+
+        result = await adapter.execute_query("SELECT * FROM users WHERE id = $1", (1,))
 
         assert len(result) == 1
         assert result[0]["name"] == "Alice"
-        mock_connection.fetch.assert_called_once_with(
-            "SELECT * FROM users WHERE id = $1", 1
-        )
+        mock_connection.fetch.assert_called_once_with("SELECT * FROM users WHERE id = $1", 1)
 
-    async def test_empty_result(self, adapter: PostgreSQLAdapter, mock_connection: MagicMock) -> None:
+    async def test_empty_result(
+        self, adapter: PostgreSQLAdapter, mock_connection: MagicMock
+    ) -> None:
         """空结果"""
         adapter._connection = mock_connection
         mock_connection.fetch = AsyncMock(return_value=[])
 
-        result = await adapter.execute_query(
-            "SELECT * FROM users WHERE age > 100"
-        )
+        result = await adapter.execute_query("SELECT * FROM users WHERE age > 100")
         assert result == []
 
 
 class TestListTables:
     """列出表测试"""
 
-    async def test_list_tables(self, adapter: PostgreSQLAdapter, mock_connection: MagicMock) -> None:
+    async def test_list_tables(
+        self, adapter: PostgreSQLAdapter, mock_connection: MagicMock
+    ) -> None:
         """列出所有表"""
         adapter._connection = mock_connection
 
         # mock list_tables SQL query
-        mock_connection.fetch = AsyncMock(return_value=[
-            create_record({"table_name": "users"}),
-            create_record({"table_name": "posts"}),
-        ])
+        mock_connection.fetch = AsyncMock(
+            return_value=[
+                create_record({"table_name": "users"}),
+                create_record({"table_name": "posts"}),
+            ]
+        )
 
         # mock describe_table queries
         mock_connection.fetchrow = AsyncMock(return_value=create_record({"cnt": 5}))
@@ -161,25 +165,45 @@ class TestListTables:
             ],
             # describe_table users columns
             [
-                create_record({
-                    "column_name": "id", "data_type": "integer",
-                    "is_nullable": "NO", "column_default": None, "is_pk": True,
-                }),
-                create_record({
-                    "column_name": "name", "data_type": "text",
-                    "is_nullable": "NO", "column_default": None, "is_pk": False,
-                }),
+                create_record(
+                    {
+                        "column_name": "id",
+                        "data_type": "integer",
+                        "is_nullable": "NO",
+                        "column_default": None,
+                        "is_pk": True,
+                    }
+                ),
+                create_record(
+                    {
+                        "column_name": "name",
+                        "data_type": "text",
+                        "is_nullable": "NO",
+                        "column_default": None,
+                        "is_pk": False,
+                    }
+                ),
             ],
             # describe_table posts columns
             [
-                create_record({
-                    "column_name": "id", "data_type": "integer",
-                    "is_nullable": "NO", "column_default": None, "is_pk": True,
-                }),
-                create_record({
-                    "column_name": "title", "data_type": "text",
-                    "is_nullable": "YES", "column_default": None, "is_pk": False,
-                }),
+                create_record(
+                    {
+                        "column_name": "id",
+                        "data_type": "integer",
+                        "is_nullable": "NO",
+                        "column_default": None,
+                        "is_pk": True,
+                    }
+                ),
+                create_record(
+                    {
+                        "column_name": "title",
+                        "data_type": "text",
+                        "is_nullable": "YES",
+                        "column_default": None,
+                        "is_pk": False,
+                    }
+                ),
             ],
         ]
 
@@ -196,7 +220,9 @@ class TestListTables:
         assert tables[0].columns[1].name == "name"
         assert tables[0].columns[1].data_type == "text"
 
-    async def test_list_tables_empty(self, adapter: PostgreSQLAdapter, mock_connection: MagicMock) -> None:
+    async def test_list_tables_empty(
+        self, adapter: PostgreSQLAdapter, mock_connection: MagicMock
+    ) -> None:
         """空数据库"""
         adapter._connection = mock_connection
         mock_connection.fetch = AsyncMock(return_value=[])
@@ -215,20 +241,37 @@ class TestDescribeTable:
         adapter._connection = mock_connection
 
         # mock columns query
-        mock_connection.fetch = AsyncMock(return_value=[
-            create_record({
-                "column_name": "id", "data_type": "integer",
-                "is_nullable": "NO", "column_default": None, "is_pk": True,
-            }),
-            create_record({
-                "column_name": "name", "data_type": "character varying",
-                "is_nullable": "NO", "column_default": None, "is_pk": False,
-            }),
-            create_record({
-                "column_name": "email", "data_type": "text",
-                "is_nullable": "YES", "column_default": None, "is_pk": False,
-            }),
-        ])
+        mock_connection.fetch = AsyncMock(
+            return_value=[
+                create_record(
+                    {
+                        "column_name": "id",
+                        "data_type": "integer",
+                        "is_nullable": "NO",
+                        "column_default": None,
+                        "is_pk": True,
+                    }
+                ),
+                create_record(
+                    {
+                        "column_name": "name",
+                        "data_type": "character varying",
+                        "is_nullable": "NO",
+                        "column_default": None,
+                        "is_pk": False,
+                    }
+                ),
+                create_record(
+                    {
+                        "column_name": "email",
+                        "data_type": "text",
+                        "is_nullable": "YES",
+                        "column_default": None,
+                        "is_pk": False,
+                    }
+                ),
+            ]
+        )
         mock_connection.fetchrow = AsyncMock(return_value=create_record({"cnt": 10}))
 
         info = await adapter.describe_table("users")
@@ -248,15 +291,24 @@ class TestDescribeTable:
         with pytest.raises((ValueError, PermissionError)):
             await adapter.describe_table("users; DROP TABLE posts")
 
-    async def test_describe_with_default(self, adapter: PostgreSQLAdapter, mock_connection: MagicMock) -> None:
+    async def test_describe_with_default(
+        self, adapter: PostgreSQLAdapter, mock_connection: MagicMock
+    ) -> None:
         """包含默认值的列"""
         adapter._connection = mock_connection
-        mock_connection.fetch = AsyncMock(return_value=[
-            create_record({
-                "column_name": "status", "data_type": "text",
-                "is_nullable": "YES", "column_default": "'active'::text", "is_pk": False,
-            }),
-        ])
+        mock_connection.fetch = AsyncMock(
+            return_value=[
+                create_record(
+                    {
+                        "column_name": "status",
+                        "data_type": "text",
+                        "is_nullable": "YES",
+                        "column_default": "'active'::text",
+                        "is_pk": False,
+                    }
+                ),
+            ]
+        )
         mock_connection.fetchrow = AsyncMock(return_value=create_record({"cnt": 0}))
 
         info = await adapter.describe_table("settings")
@@ -277,6 +329,7 @@ class TestStrategyPattern:
     async def test_adapter_is_instance_of_base(self, adapter: PostgreSQLAdapter) -> None:
         """PostgreSQLAdapter 是 BaseAdapter 的子类"""
         from mcp_dbtools.adapters.base import BaseAdapter
+
         assert isinstance(adapter, BaseAdapter)
 
     async def test_adapter_implements_abstract_methods(self) -> None:
@@ -286,7 +339,8 @@ class TestStrategyPattern:
         from mcp_dbtools.adapters.base import BaseAdapter
 
         pg_async_methods = {
-            name for name, _ in inspect.getmembers(
+            name
+            for name, _ in inspect.getmembers(
                 PostgreSQLAdapter, predicate=inspect.iscoroutinefunction
             )
         }
@@ -305,9 +359,7 @@ class TestStrategyPattern:
         }
 
         for method in base_abstract:
-            assert method in pg_members, (
-                f"PostgreSQLAdapter 未实现抽象方法 {method}"
-            )
+            assert method in pg_members, f"PostgreSQLAdapter 未实现抽象方法 {method}"
 
     async def test_can_register_tools_like_sqlite(self, adapter: PostgreSQLAdapter) -> None:
         """PostgreSQLAdapter 能像 SQLiteAdapter 一样注册工具"""
@@ -331,6 +383,7 @@ class TestStrategyPattern:
 # ============================================================
 # Helpers
 # ============================================================
+
 
 def create_record(data: dict[str, Any]) -> MagicMock:
     """创建模拟的 asyncpg Record 对象"""

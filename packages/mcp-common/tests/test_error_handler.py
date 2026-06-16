@@ -3,13 +3,9 @@
 from __future__ import annotations
 
 from mcp_common.errors.codes import (
-    COM_CFG_001,
-    COM_EXE_003,
-    COM_NFO_001,
     COM_SEC_001,
     ALL_ERROR_CODES,
     ErrorCategory,
-    ErrorCode,
     get_error_code,
 )
 from mcp_common.errors.handler import ToolError, format_error, is_security_error
@@ -65,8 +61,7 @@ class TestToolError:
 
     def test_tool_error_with_suggestion(self) -> None:
         """带建议的错误"""
-        err = ToolError("文件不存在", code="COM_NFO_001",
-                        suggestion="请检查文件路径")
+        err = ToolError("文件不存在", code="COM_NFO_001", suggestion="请检查文件路径")
         assert "文件不存在" in str(err)
         assert "请检查文件路径" in str(err)
 
@@ -78,8 +73,7 @@ class TestToolError:
 
     def test_tool_error_to_dict(self) -> None:
         """to_dict 包含全部字段"""
-        d = ToolError("错误", code="COM_EXE_003",
-                      suggestion="增加 timeout").to_dict()
+        d = ToolError("错误", code="COM_EXE_003", suggestion="增加 timeout").to_dict()
         assert d["code"] == "COM_EXE_003"
         assert d["message"] == "错误"
         assert d["suggestion"] == "增加 timeout"

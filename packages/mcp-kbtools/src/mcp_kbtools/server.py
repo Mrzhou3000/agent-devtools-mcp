@@ -91,7 +91,7 @@ def run(
     data_path = Path(data_dir).resolve()
     data_path.mkdir(parents=True, exist_ok=True)
 
-    typer.echo(f"🔧 mcp-kbtools starting...")
+    typer.echo("🔧 mcp-kbtools starting...")
     typer.echo(f"  数据目录: {data_path}")
     typer.echo(f"  传输模式: {transport}")
 

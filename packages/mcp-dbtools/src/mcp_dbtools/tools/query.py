@@ -122,8 +122,7 @@ def register_query_tools(
             nullable_mark = "" if col.nullable else " NOT NULL"
             default_str = f" DEFAULT {col.default}" if col.default else ""
             lines.append(
-                f"   {col.name:20} {col.data_type:15}"
-                f"{nullable_mark}{default_str}{pk_mark}"
+                f"   {col.name:20} {col.data_type:15}" f"{nullable_mark}{default_str}{pk_mark}"
             )
 
         return "\n".join(lines).strip()
@@ -204,7 +203,7 @@ def register_query_tools(
         total_pages = max(1, math.ceil(total / page_size))
 
         lines = [
-            f"📊 分页查询结果",
+            "📊 分页查询结果",
             f"  总行数: {total}",
             f"  当前页: {page}/{total_pages}",
             f"  每页行数: {page_size}",

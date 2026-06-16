@@ -15,8 +15,7 @@ from __future__ import annotations
 import asyncio
 import shlex
 import uuid
-from dataclasses import dataclass, field
-from typing import Any
+from dataclasses import dataclass
 
 from mcp.server.fastmcp import FastMCP
 
@@ -50,6 +49,7 @@ def register_command_tools(
     @dataclass
     class AsyncTask:
         """异步任务记录"""
+
         task_id: str
         command: str
         status: str = "running"  # running / done / error
@@ -73,13 +73,15 @@ def register_command_tools(
         try:
             safe_work_dir = sandbox.validate_path(work_dir)
             proc = await asyncio.create_subprocess_exec(
-                command, *args,
+                command,
+                *args,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
                 cwd=str(safe_work_dir),
             )
             stdout, stderr = await asyncio.wait_for(
-                proc.communicate(), timeout=timeout,
+                proc.communicate(),
+                timeout=timeout,
             )
             task.stdout = stdout.decode("utf-8", errors="replace")
             task.stderr = stderr.decode("utf-8", errors="replace")
@@ -123,14 +125,16 @@ def register_command_tools(
         _async_tasks[task_id] = AsyncTask(task_id=task_id, command=command)
 
         # 在后台启动
-        asyncio.ensure_future(_run_async_command_internal(
-            command=command,
-            args=parsed_args,
-            work_dir=work_dir,
-            timeout=timeout,
-            sandbox=sandbox,
-            task_id=task_id,
-        ))
+        asyncio.ensure_future(
+            _run_async_command_internal(
+                command=command,
+                args=parsed_args,
+                work_dir=work_dir,
+                timeout=timeout,
+                sandbox=sandbox,
+                task_id=task_id,
+            )
+        )
 
         return (
             f"✅ 异步任务已启动\n"
@@ -195,6 +199,7 @@ def register_command_tools(
             timeout: 超时时间（秒，默认 30）
         """
         import time
+
         start_time = time.time()
 
         try:
@@ -258,10 +263,7 @@ def register_command_tools(
             return "\n".join(result_parts) if result_parts else "(无输出)"
 
         except asyncio.TimeoutError:
-            return (
-                f"❌ 命令执行超时（{timeout}秒）\n"
-                f"💡 可通过 timeout 参数调整超时时间"
-            )
+            return f"❌ 命令执行超时（{timeout}秒）\n" f"💡 可通过 timeout 参数调整超时时间"
         except FileNotFoundError:
             return (
                 f"❌ 命令未找到: '{command}'\n"
@@ -290,17 +292,16 @@ def register_command_tools(
         # 检查是否是 Git 仓库
         git_dir = safe_path / ".git"
         if not git_dir.exists():
-            return (
-                f"❌ 不是 Git 仓库: '{work_dir}'\n"
-                f"💡 当前目录没有 .git 目录"
-            )
+            return f"❌ 不是 Git 仓库: '{work_dir}'\n" f"💡 当前目录没有 .git 目录"
 
         git_path = _find_git()
         if git_path is None:
             return "❌ 未找到 git 命令"
 
         proc = await asyncio.create_subprocess_exec(
-            git_path, "status", "--short",
+            git_path,
+            "status",
+            "--short",
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
             cwd=str(safe_path),
@@ -330,11 +331,7 @@ def register_command_tools(
         if untracked:
             summary_parts.append(f"  未跟踪: {untracked}")
 
-        return (
-            f"{' | '.join(summary_parts)}\n"
-            f"───\n"
-            f"{output}"
-        )
+        return f"{' | '.join(summary_parts)}\n" f"───\n" f"{output}"
 
     @mcp.tool(description="查看 Git 差异（git diff），显示工作区和暂存区的变更内容")
     async def git_diff(
@@ -367,7 +364,8 @@ def register_command_tools(
             args.append(target)
 
         proc = await asyncio.create_subprocess_exec(
-            git_path, *args,
+            git_path,
+            *args,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
             cwd=str(safe_path),
@@ -396,4 +394,5 @@ def register_command_tools(
 def _find_git() -> str | None:
     """查找系统中的 git 可执行文件"""
     import shutil
+
     return shutil.which("git")
